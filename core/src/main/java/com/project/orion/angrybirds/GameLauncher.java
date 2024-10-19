@@ -12,11 +12,6 @@ public class GameLauncher extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture image;
 
-    public void Texture() {
-        // Load the image
-        image = new Texture("libgdx.png");
-    }
-
     @Override
     public void create() {
         batch = new SpriteBatch();
