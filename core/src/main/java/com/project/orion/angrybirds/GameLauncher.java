@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.project.orion.angrybirds.screens.LevelSelectionScreen;
 import com.project.orion.angrybirds.screens.MainMenuScreen;
 import com.project.orion.angrybirds.screens.StartupScreen;
 
@@ -56,7 +57,8 @@ public class GameLauncher extends Game {
         batch = new SpriteBatch();
         font = new BitmapFont();
 //        this.setScreen(new StartupScreen(this));
-        this.setScreen(new MainMenuScreen(this));
+//        this.setScreen(new MainMenuScreen(this));
+        this.setScreen(new LevelSelectionScreen(this));
     }
 
     @Override
