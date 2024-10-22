@@ -20,6 +20,8 @@ public class LevelSelectionScreen implements Screen {
 
     public LevelSelectionScreen(GameLauncher game) {
         this.game = game;
+        System.out.println(Gdx.graphics.getWidth());
+        System.out.println(Gdx.graphics.getHeight());
     }
 
     @Override
