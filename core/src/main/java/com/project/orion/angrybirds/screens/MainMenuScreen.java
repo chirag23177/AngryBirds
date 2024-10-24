@@ -26,12 +26,14 @@ public class MainMenuScreen implements Screen {
 //    private float timer = 0;
     private FitViewport viewport;
     private Stage stage;
+    private Table table;
 
 
     public MainMenuScreen(GameLauncher game) {
         this.game = game;
         viewport = new FitViewport(2000, 1000);
         stage = new Stage(viewport, game.batch);
+        table = new Table();
     }
 
     @Override
@@ -41,17 +43,32 @@ public class MainMenuScreen implements Screen {
 
         // Creating buttons
         Texture playTexture = new Texture("play_button.png");
+        Texture playHoverTexture = new Texture("Play_button_custom_hover1.png");
         Texture loadTexture = new Texture("load_button.png");
+        Texture loadHoverTexture = new Texture("load_button_hover.png");
         Texture exitTexture = new Texture("exit_button.png");
+        Texture exitHoverTexture = new Texture("exit_button_hover.png");
 
-        Button playButton = new Button(new TextureRegionDrawable(playTexture));
-        Button loadButton = new Button(new TextureRegionDrawable(loadTexture));
-        Button exitButton = new Button(new TextureRegionDrawable(exitTexture));
+        Button.ButtonStyle playButtonStyle = new Button.ButtonStyle();
+        playButtonStyle.up = new TextureRegionDrawable(playTexture);
+        playButtonStyle.over = new TextureRegionDrawable(playHoverTexture);
+
+        Button.ButtonStyle loadButtonStyle = new Button.ButtonStyle();
+        loadButtonStyle.up = new TextureRegionDrawable(loadTexture);
+        loadButtonStyle.over = new TextureRegionDrawable(loadHoverTexture);
+
+        Button.ButtonStyle exitButtonStyle = new Button.ButtonStyle();
+        exitButtonStyle.up = new TextureRegionDrawable(exitTexture);
+        exitButtonStyle.over = new TextureRegionDrawable(exitHoverTexture);
+
+        Button playButton = new Button(playButtonStyle);
+        Button loadButton = new Button(loadButtonStyle);
+        Button exitButton = new Button(exitButtonStyle);
 
         // set size of the buttons
-        playButton.setSize(300, 100);
-        loadButton.setSize(300, 100);
-        exitButton.setSize(300, 100);
+//        playButton.setSize(400, 200);
+//        loadButton.setSize(300, 100);
+//        exitButton.setSize(300, 100);
 
         playButton.addListener(new ClickListener() {
             @Override
@@ -65,6 +82,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Load game
+                Gdx.app.exit();
             }
         });
 
@@ -76,15 +94,16 @@ public class MainMenuScreen implements Screen {
         });
 
         // Creating table
-        Table table = new Table();
+
         table.center();
         table.setFillParent(true);
 
         Image logoImage = new Image(new TextureRegionDrawable(logo_img));
         table.add(logoImage).padBottom(100).row();
-        table.add(playButton).size(playButton.getWidth(),playButton.getHeight()).padBottom(20).row();
-        table.add(loadButton).size(loadButton.getWidth(),loadButton.getHeight()).padBottom(20).row();
-        table.add(exitButton).size(exitButton.getWidth(),exitButton.getHeight()).padBottom(20).row();
+        table.add(playButton).padBottom(20).row();
+        table.add(playButton)
+        table.add(loadButton).padBottom(20).row();
+        table.add(exitButton).row();
 //        table.add(loadButton).padBottom(20).row();
 //        table.add(exitButton).padBottom(20).row();
 

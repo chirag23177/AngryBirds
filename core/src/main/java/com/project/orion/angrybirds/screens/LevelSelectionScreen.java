@@ -1,6 +1,7 @@
 package com.project.orion.angrybirds.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -26,7 +27,8 @@ public class LevelSelectionScreen implements Screen {
 
     @Override
     public void show() {
-        main_background = new Texture("lselectionbg.png");
+//        main_background = new Texture("lselectionbg.png");
+        main_background = new Texture("main_background.png");
         logo_img = new Texture("logo.png");
         levelCommon = new Texture("LevelCommon.png");
         one = new Texture("one.png");
@@ -88,6 +90,11 @@ public class LevelSelectionScreen implements Screen {
         }
         else if (Gdx.input.getX() > l1x && Gdx.input.getX() < l1x + number_width && Gdx.input.getY() > l1y && Gdx.input.getY() < l1y + number_height) {
             game.batch.draw(acvone, l1x, l1y, number_width, number_height);
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new MainMenuScreen(game));
+            dispose();
         }
         game.batch.end();
     }
