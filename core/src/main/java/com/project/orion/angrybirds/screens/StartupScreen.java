@@ -10,7 +10,7 @@ public class StartupScreen implements Screen {
     private final GameLauncher game;
     private Texture startup_img;
 //    private Texture logo_img;
-    private float timer = 0;
+    private float timer;
 
 
     public StartupScreen(GameLauncher game) {
@@ -21,6 +21,7 @@ public class StartupScreen implements Screen {
     @Override
     public void show() {
         startup_img = new Texture("startup_image.png");
+        timer = 0;
 //        startup_img = new Texture("img.png");
 //        logo_img = new Texture("logo.png");
     }
@@ -29,8 +30,10 @@ public class StartupScreen implements Screen {
     public void render(float v) {
         timer += v;
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        game.viewport.apply();
+        game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
         game.batch.begin();
-        game.batch.draw(startup_img, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(startup_img, 0, 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
         game.batch.end();
 
         if (timer > 2){
@@ -41,9 +44,13 @@ public class StartupScreen implements Screen {
     }
 
     @Override
-    public void resize(int i, int i1) {
-        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
+    public void resize(int width, int height) {
+        game.viewport.update(width, height, true);
     }
+//    @Override
+//    public void resize(int i, int i1) {
+//        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
+//    }
 
     @Override
     public void pause() {

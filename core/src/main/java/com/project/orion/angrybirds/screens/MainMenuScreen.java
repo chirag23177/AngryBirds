@@ -31,8 +31,10 @@ public class MainMenuScreen implements Screen {
     public void render(float v) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        game.viewport.apply();
+        game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
         game.batch.begin();
-        game.batch.draw(main_background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(main_background, 0, 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
         float logo_x = (Gdx.graphics.getWidth() - logo_img.getWidth()) / 2;
         float logo_y = ((Gdx.graphics.getHeight() - logo_img.getHeight()) / 2 )+350;
         game.batch.draw(logo_img, logo_x, logo_y);
@@ -53,9 +55,13 @@ public class MainMenuScreen implements Screen {
     }
 
     @Override
-    public void resize(int i, int i1) {
-        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
+    public void resize(int width, int height) {
+        game.viewport.update(width, height, true);
     }
+//    @Override
+//    public void resize(int i, int i1) {
+//        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
+//    }
 
     @Override
     public void pause() {
