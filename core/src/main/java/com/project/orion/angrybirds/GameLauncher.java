@@ -74,4 +74,3 @@ public class GameLauncher extends Game {
         font.dispose();
     }
 }
-// My name is sanskar garg

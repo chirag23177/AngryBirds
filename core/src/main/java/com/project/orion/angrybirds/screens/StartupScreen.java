@@ -2,14 +2,15 @@ package com.project.orion.angrybirds.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.project.orion.angrybirds.GameLauncher;
 
 public class StartupScreen implements Screen {
     private final GameLauncher game;
     private Texture startup_img;
-//    private Texture logo_img;
     private float timer;
 
 
@@ -22,14 +23,13 @@ public class StartupScreen implements Screen {
     public void show() {
         startup_img = new Texture("startup_image.png");
         timer = 0;
-//        startup_img = new Texture("img.png");
-//        logo_img = new Texture("logo.png");
     }
 
     @Override
     public void render(float v) {
         timer += v;
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        ScreenUtils.clear(Color.BLACK);
         game.viewport.apply();
         game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
         game.batch.begin();
@@ -47,10 +47,6 @@ public class StartupScreen implements Screen {
     public void resize(int width, int height) {
         game.viewport.update(width, height, true);
     }
-//    @Override
-//    public void resize(int i, int i1) {
-//        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
-//    }
 
     @Override
     public void pause() {
