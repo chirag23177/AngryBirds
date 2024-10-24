@@ -57,10 +57,10 @@ public class GameLauncher extends Game {
         batch = new SpriteBatch();
         font = new BitmapFont();
         viewport = new FitViewport(1920,1080);
-        this.setScreen(new StartupScreen(this));
+//        this.setScreen(new StartupScreen(this));
 //        this.setScreen(new MainMenuScreen(this));
 //        this.setScreen(new LevelSelectionScreen(this));
-//        this.setScreen(new MainGameScreen(this));
+        this.setScreen(new MainGameScreen(this));
     }
 
     @Override
