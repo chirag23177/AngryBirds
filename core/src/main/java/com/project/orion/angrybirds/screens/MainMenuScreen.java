@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.project.orion.angrybirds.GameLauncher;
 
 public class MainMenuScreen implements Screen {
@@ -13,9 +14,13 @@ public class MainMenuScreen implements Screen {
     private Texture play_button;
     private Texture load_button;
     private Texture exit_button;
+    private float timer = 0;
+    private FitViewport viewport;
+
 
     public MainMenuScreen(GameLauncher game) {
         this.game = game;
+        viewport = new FitViewport(2000, 1000);
     }
 
     @Override
@@ -24,12 +29,15 @@ public class MainMenuScreen implements Screen {
         logo_img = new Texture("logo.png");
         play_button = new Texture("play_button.png");
         load_button = new Texture("load_button.png");
-        exit_button = new Texture("exit_buttom.png");
+        exit_button = new Texture("exit_button.png");
     }
 
     @Override
     public void render(float v) {
+        timer += v;
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        viewport.apply();
+        game.batch.setProjectionMatrix(viewport.getCamera().combined);
 
         game.batch.begin();
         game.batch.draw(main_background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -49,6 +57,11 @@ public class MainMenuScreen implements Screen {
         float exit_y = (Gdx.graphics.getHeight() - exit_button.getHeight()) / 2 - 200;
         game.batch.draw(exit_button, exit_x, exit_y, exit_button.getWidth()-70,exit_button.getHeight()-70);
         game.batch.end();
+
+        if (timer > 4){
+            game.setScreen(new LevelSelectionScreen(game));
+            dispose();
+        }
 
     }
 
