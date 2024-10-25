@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.project.orion.angrybirds.GameLauncher;
 
 import java.awt.*;
@@ -19,18 +20,19 @@ public class MainMenuScreen implements Screen {
     private final GameLauncher game;
     private Texture main_background;
     private Texture logo_img;
-    private Texture play_img;
-    private Texture load_img;
-    private Texture exit_img;
-    private Button play_button;
-    private Button load_button;
-    private Button exit_button;
+//    private Texture play_button;
+//    private Texture load_button;
+//    private Texture exit_button;
+//    private float timer = 0;
+    private FitViewport viewport;
     private Stage stage;
     private Table table;
+
 
     public MainMenuScreen(GameLauncher game) {
         this.game = game;
         stage = new Stage(game.viewport, game.batch);
+        table = new Table();
     }
 
     @Override
@@ -38,87 +40,36 @@ public class MainMenuScreen implements Screen {
         main_background = new Texture("main_background.png");
         logo_img = new Texture("logo.png");
 
-//        // create textures
-//        play_img = new Texture("play_button.png");
-//        load_img = new Texture("load_button.png");
-//        exit_img = new Texture("exit_button.png");
-//
-//        // create buttons
-//        play_button = new Button(new TextureRegionDrawable(play_img));
-//        load_button = new Button(new TextureRegionDrawable(load_img));
-//        exit_button = new Button(new TextureRegionDrawable(exit_img));
-//
-//        // set size of the buttons
-//        play_button.setSize(300, 100);
-//        load_button.setSize(300, 100);
-//        exit_button.setSize(300, 100);
-//
-//        play_button.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                game.setScreen(new LevelSelectionScreen(game));
-//                dispose();
-//            }
-//        });
-//
-//        load_button.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                // Load game
-//            }
-//        });
-//
-//        exit_button.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                Gdx.app.exit();
-//            }
-//        });
-//
-//        // Creating table
-//        Table table = new Table();
-//        table.center();
-//        table.setFillParent(true);
-//
-//        Image logoImage = new Image(new TextureRegionDrawable(logo_img));
-//        table.add(logoImage).padBottom(100).row();
-//        table.add(play_button).size(play_button.getWidth(),play_button.getHeight()).padBottom(20).row();
-//        table.add(load_button).size(load_button.getWidth(),load_button.getHeight()).padBottom(20).row();
-//        table.add(exit_button).size(exit_button.getWidth(),exit_button.getHeight()).padBottom(20).row();
-//
-//        stage.addActor(table);
-//        Gdx.input.setInputProcessor(stage);
-
         // Creating buttons
-        play_img = new Texture("play_button.png");
+        Texture playTexture = new Texture("play_button.png");
         Texture playHoverTexture = new Texture("Play_button_custom_hover1.png");
-        load_img = new Texture("load_button.png");
+        Texture loadTexture = new Texture("load_button.png");
         Texture loadHoverTexture = new Texture("load_button_hover.png");
-        exit_img = new Texture("exit_button.png");
+        Texture exitTexture = new Texture("exit_button.png");
         Texture exitHoverTexture = new Texture("exit_button_hover.png");
 
         Button.ButtonStyle playButtonStyle = new Button.ButtonStyle();
-        playButtonStyle.up = new TextureRegionDrawable(play_img);
+        playButtonStyle.up = new TextureRegionDrawable(playTexture);
         playButtonStyle.over = new TextureRegionDrawable(playHoverTexture);
 
         Button.ButtonStyle loadButtonStyle = new Button.ButtonStyle();
-        loadButtonStyle.up = new TextureRegionDrawable(load_img);
+        loadButtonStyle.up = new TextureRegionDrawable(loadTexture);
         loadButtonStyle.over = new TextureRegionDrawable(loadHoverTexture);
 
         Button.ButtonStyle exitButtonStyle = new Button.ButtonStyle();
-        exitButtonStyle.up = new TextureRegionDrawable(exit_img);
+        exitButtonStyle.up = new TextureRegionDrawable(exitTexture);
         exitButtonStyle.over = new TextureRegionDrawable(exitHoverTexture);
 
-        play_button = new Button(playButtonStyle);
-        load_button = new Button(loadButtonStyle);
-        exit_button = new Button(exitButtonStyle);
+        Button playButton = new Button(playButtonStyle);
+        Button loadButton = new Button(loadButtonStyle);
+        Button exitButton = new Button(exitButtonStyle);
 
         // set size of the buttons
 //        playButton.setSize(400, 200);
 //        loadButton.setSize(300, 100);
 //        exitButton.setSize(300, 100);
 
-        play_button.addListener(new ClickListener() {
+        playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new LevelSelectionScreen(game));
@@ -126,7 +77,7 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        load_button.addListener(new ClickListener() {
+        loadButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Load game
@@ -134,7 +85,7 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        exit_button.addListener(new ClickListener() {
+        exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.exit();
@@ -142,21 +93,25 @@ public class MainMenuScreen implements Screen {
         });
 
         // Creating table
-        table = new Table();
+
         table.center();
         table.setFillParent(true);
 
         Image logoImage = new Image(new TextureRegionDrawable(logo_img));
         table.add(logoImage).padBottom(100).row();
-        table.add(play_button).padBottom(20).row();
-//        table.add(playButton);
-        table.add(load_button).padBottom(20).row();
-        table.add(exit_button).row();
+        table.add(playButton).padBottom(20).row();
+        table.add(playButton)
+        table.add(loadButton).padBottom(20).row();
+        table.add(exitButton).row();
 //        table.add(loadButton).padBottom(20).row();
 //        table.add(exitButton).padBottom(20).row();
 
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
+
+//        play_button = new Texture("play_button.png");
+//        load_button = new Texture("load_button.png");
+//        exit_button = new Texture("exit_button.png");
     }
 
     @Override
@@ -169,7 +124,7 @@ public class MainMenuScreen implements Screen {
 //        float logo_x = (Gdx.graphics.getWidth() - logo_img.getWidth()) / 2;
 //        float logo_y = ((Gdx.graphics.getHeight() - logo_img.getHeight()) / 2 )+350;
 //        game.batch.draw(logo_img, logo_x, logo_y);
-//
+
 //        float play_x = (Gdx.graphics.getWidth() - play_button.getWidth()) / 2;
 //        float play_y = (Gdx.graphics.getHeight() - play_button.getHeight()) / 2 +100;
 //        game.batch.draw(play_button, play_x, play_y, play_button.getWidth()-70,play_button.getHeight()-70);
@@ -190,10 +145,6 @@ public class MainMenuScreen implements Screen {
     public void resize(int width, int height) {
         game.viewport.update(width, height, true);
     }
-//    @Override
-//    public void resize(int i, int i1) {
-//        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
-//    }
 
     @Override
     public void pause() {

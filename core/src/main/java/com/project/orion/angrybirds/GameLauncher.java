@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.project.orion.angrybirds.screens.*;
+import com.project.orion.angrybirds.screens.LevelSelectionScreen;
+import com.project.orion.angrybirds.screens.MainMenuScreen;
+import com.project.orion.angrybirds.screens.StartupScreen;
 
 import javax.swing.text.Utilities;
 
@@ -60,7 +62,6 @@ public class GameLauncher extends Game {
         this.setScreen(new StartupScreen(this));
 //        this.setScreen(new MainMenuScreen(this));
 //        this.setScreen(new LevelSelectionScreen(this));
-//        this.setScreen(new MainGameScreen(this));
     }
 
     @Override
@@ -74,3 +75,4 @@ public class GameLauncher extends Game {
         font.dispose();
     }
 }
+
