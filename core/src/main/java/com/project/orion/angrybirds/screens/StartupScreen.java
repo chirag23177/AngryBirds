@@ -65,6 +65,6 @@ public class StartupScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        startup_img.dispose();
     }
 }
