@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector3;
 import com.project.orion.angrybirds.GameLauncher;
 
 public class LevelSelectionScreen implements Screen {
@@ -21,8 +22,6 @@ public class LevelSelectionScreen implements Screen {
 
     public LevelSelectionScreen(GameLauncher game) {
         this.game = game;
-        System.out.println(Gdx.graphics.getWidth());
-        System.out.println(Gdx.graphics.getHeight());
     }
 
     @Override
@@ -43,24 +42,25 @@ public class LevelSelectionScreen implements Screen {
     public void render(float v) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        game.viewport.apply();
+        game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
         game.batch.begin();
-        game.batch.draw(main_background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        float worldWidth = game.viewport.getWorldWidth();
+        float worldHeight = game.viewport.getWorldHeight();
 
-        float logo_x = (Gdx.graphics.getWidth() - logo_img.getWidth()) / 2;
-        float logo_y = ((Gdx.graphics.getHeight() - logo_img.getHeight()) / 2 )+350;
+        game.batch.draw(main_background, 0, 0, worldWidth, worldHeight);
+
+        float logo_x = (worldWidth - logo_img.getWidth()) / 2;
+        float logo_y = ((worldHeight - logo_img.getHeight()) / 2 )+350;
         game.batch.draw(logo_img, logo_x, logo_y);
 
-//        float x = (Gdx.graphics.getWidth() - level1.getWidth()) / 2;
-//        float y = (Gdx.graphics.getHeight() - level1.getHeight()) / 2 + 100;
-//
-//        game.batch.draw(level1, x, y);
         float base_width = 200;
         float base_height = 150;
 
-        float b1x = (Gdx.graphics.getWidth() - base_width) / 2 - 400;
-        float b2x = (Gdx.graphics.getWidth() - base_width) / 2;
-        float b3x = (Gdx.graphics.getWidth() - base_width) / 2 + 400;
-        float by = (Gdx.graphics.getHeight() - base_height) / 2;
+        float b1x = (worldWidth - base_width) / 2 - 400;
+        float b2x = (worldWidth - base_width) / 2;
+        float b3x = (worldWidth - base_width) / 2 + 400;
+        float by = (worldHeight - base_height) / 2;
 
 
         game.batch.draw(levelCommon, b1x, by, base_width, base_height);
@@ -69,26 +69,32 @@ public class LevelSelectionScreen implements Screen {
 
         float number_width = 100;
         float number_height = 100;
-        float l1x = ((Gdx.graphics.getWidth() - base_width + number_width) / 2) - 395;
-        float l1y = (Gdx.graphics.getHeight() - base_height) / 2 + 20;
+        float l1x = ((worldWidth - base_width + number_width) / 2) - 395;
+        float l1y = (worldHeight - base_height) / 2 + 20;
         game.batch.draw(one, l1x, l1y, number_width, number_height);
 
-        float l2x = ((Gdx.graphics.getWidth() - base_width + number_width) / 2) + 5;
-        float l2y = (Gdx.graphics.getHeight() - base_height) / 2 + 20;
+        float l2x = ((worldWidth - base_width + number_width) / 2) + 5;
+        float l2y = (worldHeight - base_height) / 2 + 20;
         game.batch.draw(two, l2x, l2y, number_width, number_height);
 
-        float l3x = ((Gdx.graphics.getWidth() - base_width + number_width) / 2) + 405;
-        float l3y = (Gdx.graphics.getHeight() - base_height) / 2 + 20;
+        float l3x = ((worldWidth - base_width + number_width) / 2) + 405;
+        float l3y = (worldHeight - base_height) / 2 + 20;
         game.batch.draw(three, l3x, l3y, number_width, number_height);
 
-        //selected level 1
-        if (Gdx.input.getX() > l3x && Gdx.input.getX() < l3x + number_width && Gdx.input.getY() > l3y && Gdx.input.getY() < l3y + number_height) {
+        Vector3 coordinates = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+
+        game.viewport.getCamera().unproject(coordinates);
+
+        float worldx = coordinates.x;
+        float worldy = coordinates.y;
+
+        if (worldx > l3x && worldx < l3x + number_width && worldy > l3y && worldy < l3y + number_height) {
             game.batch.draw(acvthree, l3x, l3y, number_width, number_height);
         }
-        else if (Gdx.input.getX() > l2x && Gdx.input.getX() < l2x + number_width && Gdx.input.getY() > l2y && Gdx.input.getY() < l2y + number_height) {
+        else if (worldx > l2x && worldx < l2x + number_width && worldy > l2y && worldy < l2y + number_height) {
             game.batch.draw(acvtwo, l2x, l2y, number_width, number_height);
         }
-        else if (Gdx.input.getX() > l1x && Gdx.input.getX() < l1x + number_width && Gdx.input.getY() > l1y && Gdx.input.getY() < l1y + number_height) {
+        else if (worldx > l1x && worldx < l1x + number_width && worldy > l1y && worldy < l1y + number_height) {
             game.batch.draw(acvone, l1x, l1y, number_width, number_height);
         }
 
@@ -100,8 +106,8 @@ public class LevelSelectionScreen implements Screen {
     }
 
     @Override
-    public void resize(int i, int i1) {
-        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
+    public void resize(int width, int height) {
+        game.viewport.update(width, height, true);
     }
 
     @Override

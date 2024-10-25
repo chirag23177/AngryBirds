@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.project.orion.angrybirds.screens.LevelSelectionScreen;
 import com.project.orion.angrybirds.screens.MainMenuScreen;
 import com.project.orion.angrybirds.screens.StartupScreen;
@@ -51,17 +52,16 @@ public class GameLauncher extends Game {
 
     public SpriteBatch batch;
     public BitmapFont font;
+    public FitViewport viewport;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont();
-
-//        this.setScreen(new StartupScreen(this));
+        viewport = new FitViewport(1920,1080);
+        this.setScreen(new StartupScreen(this));
 //        this.setScreen(new MainMenuScreen(this));
-
-//        this.setScreen(new StartupScreen(this));
-        this.setScreen(new MainMenuScreen(this));
+//        this.setScreen(new LevelSelectionScreen(this));
     }
 
     @Override
@@ -75,4 +75,4 @@ public class GameLauncher extends Game {
         font.dispose();
     }
 }
-// My name is sanskar garg
+

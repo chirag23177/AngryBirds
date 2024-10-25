@@ -31,8 +31,7 @@ public class MainMenuScreen implements Screen {
 
     public MainMenuScreen(GameLauncher game) {
         this.game = game;
-        viewport = new FitViewport(2000, 1000);
-        stage = new Stage(viewport, game.batch);
+        stage = new Stage(game.viewport, game.batch);
         table = new Table();
     }
 
@@ -117,13 +116,11 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float v) {
-//        timer += v;
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//        viewport.apply();
-//        game.batch.setProjectionMatrix(viewport.getCamera().combined);
-
+        game.viewport.apply();
+        game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
         game.batch.begin();
-        game.batch.draw(main_background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(main_background, 0, 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
 //        float logo_x = (Gdx.graphics.getWidth() - logo_img.getWidth()) / 2;
 //        float logo_y = ((Gdx.graphics.getHeight() - logo_img.getHeight()) / 2 )+350;
 //        game.batch.draw(logo_img, logo_x, logo_y);
@@ -142,16 +139,11 @@ public class MainMenuScreen implements Screen {
         game.batch.end();
         stage.act(v);
         stage.draw();
-//        if (timer > 4){
-//            game.setScreen(new LevelSelectionScreen(game));
-//            dispose();
-//        }
-
     }
 
     @Override
-    public void resize(int i, int i1) {
-        game.batch.getProjectionMatrix().setToOrtho2D(0, 0, i, i1);
+    public void resize(int width, int height) {
+        game.viewport.update(width, height, true);
     }
 
     @Override
