@@ -60,8 +60,8 @@ public class GameLauncher extends Game {
 //        this.setScreen(new StartupScreen(this));
 //        this.setScreen(new MainMenuScreen(this));
 
-        this.setScreen(new StartupScreen(this));
-//        this.setScreen(new MainMenuScreen(this));
+//        this.setScreen(new StartupScreen(this));
+        this.setScreen(new MainMenuScreen(this));
     }
 
     @Override
