@@ -100,7 +100,7 @@ public class MainMenuScreen implements Screen {
         Image logoImage = new Image(new TextureRegionDrawable(logo_img));
         table.add(logoImage).padBottom(100).row();
         table.add(playButton).padBottom(20).row();
-        table.add(playButton)
+//        table.add(playButton);
         table.add(loadButton).padBottom(20).row();
         table.add(exitButton).row();
 //        table.add(loadButton).padBottom(20).row();
