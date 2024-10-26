@@ -69,7 +69,7 @@ public class MainMenuScreen implements Screen {
         loadButton = new Button(loadButtonStyle);
         exitButton = new Button(exitButtonStyle);
 
-
+        // Making the buttons clickable
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -81,8 +81,8 @@ public class MainMenuScreen implements Screen {
         loadButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Load game
-                Gdx.app.exit();
+                game.setScreen(new LoadGameScreen(game));
+                dispose();
             }
         });
 
@@ -137,6 +137,14 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        main_background.dispose();
+        logo_img.dispose();
+        playTexture.dispose();
+        playHoverTexture.dispose();
+        loadTexture.dispose();
+        loadHoverTexture.dispose();
+        exitTexture.dispose();
+        exitHoverTexture.dispose();
+        stage.dispose();
     }
 }
