@@ -25,11 +25,13 @@ public class LevelSelectionScreen implements Screen {
     private Texture levelThreeHover;
     private Texture levelTwoHover;
     private Texture levelOneHover;
+    private Texture backButtonTexture;
     private final Stage stage;
     private final Table table;
     private Button levelOneButton;
     private Button levelTwoButton;
     private Button levelThreeButton;
+    private Button backButton;
 
     public LevelSelectionScreen(GameLauncher game) {
         this.game = game;
@@ -49,6 +51,7 @@ public class LevelSelectionScreen implements Screen {
         levelThreeHover = new Texture("levelThreeHover.png");
         levelTwoHover = new Texture("levelTwoHover.png");
         levelOneHover = new Texture("levelOneHover.png");
+        backButtonTexture = new Texture("back_button.png");
 
         // Implementing the hover button effect
         Button.ButtonStyle levelOneButtonStyle = new Button.ButtonStyle();
@@ -63,9 +66,13 @@ public class LevelSelectionScreen implements Screen {
         levelThreeButtonStyle.up = new TextureRegionDrawable(levelThree);
         levelThreeButtonStyle.over = new TextureRegionDrawable(levelThreeHover);
 
+        Button.ButtonStyle backButtonStyle = new Button.ButtonStyle();
+        backButtonStyle.up = new TextureRegionDrawable(backButtonTexture);
+
         levelOneButton = new Button(levelOneButtonStyle);
         levelTwoButton = new Button(levelTwoButtonStyle);
         levelThreeButton = new Button(levelThreeButtonStyle);
+        backButton = new Button(backButtonStyle);
 
         levelOneButton.setSize(200, 150);
         levelTwoButton.setSize(200, 150);
@@ -96,11 +103,21 @@ public class LevelSelectionScreen implements Screen {
             }
         });
 
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new MainMenuScreen(game));
+                dispose();
+            }
+        });
+
         Image logoImage = new Image(new TextureRegionDrawable(logo_img));
+//        table.add(backButton).size(backButton.getWidth(), backButton.getHeight()).padBottom(20).row();
+        table.add(backButton).size(backButton.getWidth()+10,backButton.getHeight()+10).top().left().pad(30).expandX().colspan(2).padTop(-350).row();
         table.add(logoImage).colspan(3).padBottom(70).padTop(-240).row();
-        table.add(levelOneButton).size(levelOneButton.getWidth(), levelOneButton.getHeight()).padRight(20);
-        table.add(levelTwoButton).size(levelTwoButton.getWidth(), levelTwoButton.getHeight()).padRight(20);
-        table.add(levelThreeButton).size(levelThreeButton.getWidth(), levelThreeButton.getHeight());
+        table.add(levelOneButton).size(levelOneButton.getWidth(), levelOneButton.getHeight()).padRight(-370);
+        table.add(levelTwoButton).size(levelTwoButton.getWidth(), levelTwoButton.getHeight()).padRight(60).padLeft(-700);
+        table.add(levelThreeButton).size(levelThreeButton.getWidth(), levelThreeButton.getHeight()).padRight(550).padLeft(-600).row();
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
     }
@@ -115,10 +132,6 @@ public class LevelSelectionScreen implements Screen {
         float worldWidth = game.viewport.getWorldWidth();
         float worldHeight = game.viewport.getWorldHeight();
         game.batch.draw(main_background, 0, 0, worldWidth, worldHeight);
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MainMenuScreen(game));
-            dispose();
-        }
         game.batch.end();
         stage.act(v);
         stage.draw();
