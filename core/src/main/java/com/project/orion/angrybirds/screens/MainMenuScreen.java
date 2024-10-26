@@ -81,8 +81,8 @@ public class MainMenuScreen implements Screen {
         loadButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Load game
-                Gdx.app.exit();
+                game.setScreen(new LoadGameScreen(game));
+                dispose();
             }
         });
 
