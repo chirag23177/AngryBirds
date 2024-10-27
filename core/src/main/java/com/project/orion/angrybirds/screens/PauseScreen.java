@@ -40,7 +40,7 @@ public class PauseScreen implements Screen {
         retry = new Texture("retry.png");
         cross = new Texture("cross.png");
         save = new Texture("savegamebutton.png");
-        saveHover = new Texture("slot4_hover.png");
+        saveHover = new Texture("savegamehoverbutton.png");
         level = new Texture("levelSelection.png");
 
         Button.ButtonStyle saveStyle = new Button.ButtonStyle();
