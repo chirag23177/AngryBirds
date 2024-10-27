@@ -5,9 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.project.orion.angrybirds.screens.LevelSelectionScreen;
-import com.project.orion.angrybirds.screens.LoadGameScreen;
-import com.project.orion.angrybirds.screens.StartupScreen;
+import com.project.orion.angrybirds.screens.*;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameLauncher extends Game {
@@ -27,6 +25,10 @@ public class GameLauncher extends Game {
 //        this.setScreen(new MainMenuScreen(this));
 //        this.setScreen(new LevelSelectionScreen(this));
 //        this.setScreen(new LoadGameScreen(this));
+//        this.setScreen(new WonScreen(this));
+//        this.setScreen(new LoseScreen(this));
+//        this.setScreen(new PauseScreen(this));
+//        this.setScreen(new MainGameScreen(this));
     }
 
     @Override
