@@ -5,6 +5,12 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.project.orion.angrybirds.GameLauncher;
 
 public class MainGameScreen implements Screen {
@@ -18,10 +24,27 @@ public class MainGameScreen implements Screen {
     private Texture mvng_chuck;
     private Texture bomb;
     private Texture minion_pig;
+
     private Music gameMusic;
+
+    private final Stage stage;
+    private final Table table;
+    private Texture pause;
+    private Texture win;
+    private Texture loss;
+    private Texture winHover;
+    private Texture lossHover;
+    private Button pauseButton;
+    private Button winButton;
+    private Button lossButton;
+
 
     public MainGameScreen(GameLauncher game) {
         this.game = game;
+        stage = new Stage(game.viewport, game.batch);
+        table = new Table();
+        table.setFillParent(true);
+        table.top();
     }
     @Override
     public void show() {
@@ -38,6 +61,56 @@ public class MainGameScreen implements Screen {
         mvng_chuck = new Texture("chukMoving.png");
         bomb = new Texture("bomb.png");
         minion_pig = new Texture("minionPig.png");
+
+        pause = new Texture("pause.png");
+        pauseButton = new Button(new TextureRegionDrawable(pause));
+
+        win = new Texture("win.png");
+        loss = new Texture("loss.png");
+        winHover = new Texture("winHover.png");
+        lossHover = new Texture("lossHover.png");
+
+        Button.ButtonStyle winStyle = new Button.ButtonStyle();
+        winStyle.up = new TextureRegionDrawable(win);
+        winStyle.over = new TextureRegionDrawable(winHover);
+
+        Button.ButtonStyle lossStyle = new Button.ButtonStyle();
+        lossStyle.up = new TextureRegionDrawable(loss);
+        lossStyle.over = new TextureRegionDrawable(lossHover);
+
+        winButton = new Button(winStyle);
+        lossButton = new Button(lossStyle);
+
+        pauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new PauseScreen(game));
+                dispose();
+            }
+        });
+
+        winButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new WonScreen(game));
+                dispose();
+            }
+        });
+
+        lossButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new LoseScreen(game));
+                dispose();
+            }
+        });
+
+        table.add(pauseButton).padRight(1100);
+        table.add(winButton).padTop(15);
+        table.add(lossButton).padTop(15);
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
+
     }
 
     @Override
@@ -74,6 +147,8 @@ public class MainGameScreen implements Screen {
         // Black bird in queue
         game.batch.draw(bomb, 120, 150, birdWidth, birdHeight+10);
         game.batch.end();
+        stage.act(v);
+        stage.draw();
     }
 
     @Override
