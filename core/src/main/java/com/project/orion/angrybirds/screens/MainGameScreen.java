@@ -2,6 +2,7 @@ package com.project.orion.angrybirds.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.project.orion.angrybirds.GameLauncher;
@@ -17,12 +18,17 @@ public class MainGameScreen implements Screen {
     private Texture mvng_chuck;
     private Texture bomb;
     private Texture minion_pig;
+    private Music gameMusic;
 
     public MainGameScreen(GameLauncher game) {
         this.game = game;
     }
     @Override
     public void show() {
+        game.introMusic.pause();
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game_theme.mp3"));
+        gameMusic.setLooping(true);
+        gameMusic.play();
         background = new Texture("game_background.png");
         slingshot = new Texture("slingshot.png");
         horizontal_bamboo = new Texture("horizontalBamboo.png");
@@ -92,6 +98,15 @@ public class MainGameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        background.dispose();
+        slingshot.dispose();
+        horizontal_bamboo.dispose();
+        vertical_bamboo.dispose();
+        bamboo_box.dispose();
+        red_bird.dispose();
+        mvng_chuck.dispose();
+        bomb.dispose();
+        minion_pig.dispose();
+        gameMusic.dispose();
     }
 }
