@@ -39,7 +39,7 @@ public class PauseScreen implements Screen {
         sound = new Texture("sound.png");
         retry = new Texture("retry.png");
         cross = new Texture("cross.png");
-        save = new Texture("slot4.png");
+        save = new Texture("savegamebutton.png");
         saveHover = new Texture("slot4_hover.png");
         level = new Texture("levelSelection.png");
 
