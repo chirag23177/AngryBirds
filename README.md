@@ -36,13 +36,21 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 - Sanskar Garg(2023485) - [sanskargarg27](https://github.com/sanskargarg27)
 - Chirag Yadav(2023177) - [chirag23177](https://github.com/chirag23177)
 ## Resources Link
-- libGDX Documentation:
+- Learning libGDX:
     - https://libgdx.com
+    - https://libgdx.com/wiki/graphics/2d/scene2d/scene2d-ui
+    - https://gamedev.stackexchange.com/questions/121115/libgdx-simple-button-with-image
+    - https://stackoverflow.com/questions/21488311/how-to-create-a-button-in-libgdx
+    - https://www.youtube.com/watch?v=p2lUdy68s_M&list=PLLwCf-qdpyEnB_FO_1HkUFh7smwGNjAaC&index=13
+    - https://www.youtube.com/watch?v=Pjg4KzckbrU&list=PLrnO5Pu2zAHKAIjRtTLAXtZKMSA6JWnmf&index=17
+    - https://www.youtube.com/watch?v=knF6o8nYAMM&list=PLZm85UZQLd2SXQzsF-a0-pPF6IWDDdrXt&index=21
 - Images:
     - https://angrybirds.fandom.com/wiki/Items/Gallery
     - https://www.google.com/images
 - Music:
     - https://youtu.be/uQeychfPYVA
+- Buttons Images
+  - Downloaded one and else designed manually using Gimp
 
 ## Running Commands
 
