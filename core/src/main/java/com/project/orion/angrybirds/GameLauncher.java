@@ -1,7 +1,8 @@
 package com.project.orion.angrybirds;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.project.orion.angrybirds.screens.*;
@@ -10,14 +11,16 @@ import com.project.orion.angrybirds.screens.*;
 public class GameLauncher extends Game {
 
     public SpriteBatch batch;
-    public BitmapFont font;
     public FitViewport viewport;
+    public Music introMusic;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        font = new BitmapFont();
         viewport = new FitViewport(1920,1080);
+        introMusic = Gdx.audio.newMusic(Gdx.files.internal("game_intro.mp3"));
+        introMusic.setLooping(true);
+        introMusic.play();
         this.setScreen(new StartupScreen(this));
 //        this.setScreen(new MainMenuScreen(this));
 //        this.setScreen(new LevelSelectionScreen(this));
@@ -36,7 +39,7 @@ public class GameLauncher extends Game {
     @Override
     public void dispose() {
         batch.dispose();
-        font.dispose();
+        introMusic.dispose();
     }
 }
 

@@ -25,12 +25,14 @@ public class LoadGameScreen implements Screen {
     private Texture loadSlotHover2;
     private Texture loadSlotHover3;
     private Texture loadSlotHover4;
+    private Texture backButtonTexture;
     private final Stage stage;
     private final Table table;
     Button loadSlot1Button;
     Button loadSlot2Button;
     Button loadSlot3Button;
     Button loadSlot4Button;
+    Button backButton;
 
 
     public LoadGameScreen(GameLauncher game) {
@@ -53,6 +55,7 @@ public class LoadGameScreen implements Screen {
         loadSlotHover2 = new Texture("slot2_hover.png");
         loadSlotHover3 = new Texture("slot3_hover.png");
         loadSlotHover4 = new Texture("slot4_hover.png");
+        backButtonTexture = new Texture("back_button.png");
 
         // Implementing the hover button effect
         Button.ButtonStyle loadSlot1Style = new Button.ButtonStyle();
@@ -71,10 +74,14 @@ public class LoadGameScreen implements Screen {
         loadSlot4Style.up = new TextureRegionDrawable(loadSlot4);
         loadSlot4Style.over = new TextureRegionDrawable(loadSlotHover4);
 
+        Button.ButtonStyle backButtonStyle = new Button.ButtonStyle();
+        backButtonStyle.up = new TextureRegionDrawable(backButtonTexture);
+
         loadSlot1Button = new Button(loadSlot1Style);
         loadSlot2Button = new Button(loadSlot2Style);
         loadSlot3Button = new Button(loadSlot3Style);
         loadSlot4Button = new Button(loadSlot4Style);
+        backButton = new Button(backButtonStyle);
 
         // Making the buttons clickable
         loadSlot1Button.addListener(new ClickListener() {
@@ -102,16 +109,24 @@ public class LoadGameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Load the game from slot 4
+            }
+        });
+
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new MainMenuScreen(game));
+                dispose();
             }
         });
 
         Image logoImage = new Image(new TextureRegionDrawable(logo_img));
+        table.add(backButton).size(backButton.getWidth()+10,backButton.getHeight()+10).top().left().pad(30).expandX().colspan(2).padTop(-200).row();
         table.add(logoImage).colspan(2).padBottom(60).padTop(-90).row();
-        table.add(loadSlot1Button).padBottom(50);
-        table.add(loadSlot2Button).padBottom(50).row();
-        table.add(loadSlot3Button).padBottom(50);
-        table.add(loadSlot4Button).padBottom(50);
+        table.add(loadSlot1Button).padBottom(50).padRight(-460);
+        table.add(loadSlot2Button).padBottom(50).padLeft(-460).row();
+        table.add(loadSlot3Button).padBottom(50).padRight(-460);
+        table.add(loadSlot4Button).padBottom(50).padLeft(-460);
 
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
