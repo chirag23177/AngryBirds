@@ -29,9 +29,9 @@ public class GameLauncher extends Game {
 //        this.setScreen(new WonScreen(this));
 //        this.setScreen(new LoseScreen(this));
 //        this.setScreen(new PauseScreen(this));
-//        this.setScreen(new MainGameScreen(this));
-//        this.setScreen(new SmallPigScreen(this));
-        this.setScreen(new Level1GameScreen(this));
+
+        this.setScreen(new MainGameScreen(this));
+
     }
 
     @Override
