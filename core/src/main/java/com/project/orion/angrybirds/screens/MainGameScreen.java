@@ -5,6 +5,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -37,6 +39,9 @@ public class MainGameScreen implements Screen {
     private Button pauseButton;
     private Button winButton;
     private Button lossButton;
+
+//    private World world;
+//    private Box2DDebugRenderer debugRenderer
 
 
     public MainGameScreen(GameLauncher game) {

@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.project.orion.angrybirds.screens.*;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
+
 public class GameLauncher extends Game {
 
     public SpriteBatch batch;
