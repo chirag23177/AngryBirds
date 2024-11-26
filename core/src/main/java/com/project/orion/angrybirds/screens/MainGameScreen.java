@@ -387,6 +387,43 @@ public class MainGameScreen implements Screen {
         gameMusic.play();
         background = new Texture("game_background.png");
 
+        slingshot = new Texture("slingshot.png");
+        horizontal_bamboo = new Texture("horizontalBamboo.png");
+        vertical_bamboo = new Texture("verticalBamboo.png");
+        bamboo_box = new Texture("bambooBox.png");
+        red_bird = new Texture("redBird.png");
+        mvng_chuck = new Texture("chukMoving.png");
+        bomb = new Texture("blackBird.png");
+        minion_pig = new Texture("minionPig.png");
+
+        pause = new Texture("pause.png");
+        pauseButton = new Button(new TextureRegionDrawable(pause));
+
+        win = new Texture("win.png");
+        loss = new Texture("loss.png");
+        winHover = new Texture("winHover.png");
+        lossHover = new Texture("lossHover.png");
+
+        Button.ButtonStyle winStyle = new Button.ButtonStyle();
+        winStyle.up = new TextureRegionDrawable(win);
+        winStyle.over = new TextureRegionDrawable(winHover);
+
+        Button.ButtonStyle lossStyle = new Button.ButtonStyle();
+        lossStyle.up = new TextureRegionDrawable(loss);
+        lossStyle.over = new TextureRegionDrawable(lossHover);
+
+        winButton = new Button(winStyle);
+        lossButton = new Button(lossStyle);
+
+        pauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new PauseScreen(game));
+                dispose();
+            }
+        });
+
+
         world = new World(new Vector2(0, -9.8f), true);
         debugRenderer = new Box2DDebugRenderer();
 
@@ -437,9 +474,19 @@ public class MainGameScreen implements Screen {
 
         debugRenderer.render(world, game.viewport.getCamera().combined);
 
+
         stage.act(delta);
         stage.draw();
     }
+
+        // Structure
+        System.out.println("Width: " + horizontal_bamboo.getWidth() + " Height: " + horizontal_bamboo.getHeight());
+        game.batch.draw(vertical_bamboo, 1600, 140, vertical_bamboo.getWidth(), vertical_bamboo.getHeight()-200);
+        game.batch.draw(vertical_bamboo, 1300, 140, vertical_bamboo.getWidth(), vertical_bamboo.getHeight()-200);
+        game.batch.draw(horizontal_bamboo, 1265, 290);
+        game.batch.draw(bamboo_box, 1390, 320);
+        game.batch.draw(minion_pig, 1460, 490, 80, 80);
+
 
     private void handleInput(Vector2 birdPosition, float birdSize) {
         if (Gdx.input.isTouched()) {
