@@ -5,7 +5,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -14,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.project.orion.angrybirds.GameLauncher;
+import com.project.orion.angrybirds.classes.SmallPig;
 
 public class LevelSelectionScreen implements Screen {
     private final GameLauncher game;
@@ -32,6 +35,8 @@ public class LevelSelectionScreen implements Screen {
     private Button levelTwoButton;
     private Button levelThreeButton;
     private Button backButton;
+    private SmallPig pig;
+    private World world;
 
     public LevelSelectionScreen(GameLauncher game) {
         this.game = game;
@@ -43,6 +48,8 @@ public class LevelSelectionScreen implements Screen {
 
     @Override
     public void show() {
+        world = new World(new Vector2(0, -9.81f), true);
+        pig = new SmallPig(world, 1460, 500);
         main_background = new Texture("main_background.png");
         logo_img = new Texture("logo.png");
         levelOne = new Texture("levelOne.png");
@@ -129,6 +136,8 @@ public class LevelSelectionScreen implements Screen {
         game.viewport.apply();
         game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
         game.batch.begin();
+//        pig.createBody(100, 500);
+        pig.render(game.batch);
         float worldWidth = game.viewport.getWorldWidth();
         float worldHeight = game.viewport.getWorldHeight();
         game.batch.draw(main_background, 0, 0, worldWidth, worldHeight);
