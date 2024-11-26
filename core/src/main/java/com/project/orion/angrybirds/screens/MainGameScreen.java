@@ -64,7 +64,7 @@ public class MainGameScreen implements Screen {
         bamboo_box = new Texture("bambooBox.png");
         red_bird = new Texture("redBird.png");
         mvng_chuck = new Texture("chukMoving.png");
-        bomb = new Texture("bomb.png");
+        bomb = new Texture("blackBird.png");
         minion_pig = new Texture("minionPig.png");
 
         pause = new Texture("pause.png");
@@ -140,6 +140,7 @@ public class MainGameScreen implements Screen {
         game.batch.draw(red_bird, slingshotlaunchx, slingshotlaunchy, birdWidth, birdHeight);
 
         // Structure
+        System.out.println("Width: " + horizontal_bamboo.getWidth() + " Height: " + horizontal_bamboo.getHeight());
         game.batch.draw(vertical_bamboo, 1600, 140, vertical_bamboo.getWidth(), vertical_bamboo.getHeight()-200);
         game.batch.draw(vertical_bamboo, 1300, 140, vertical_bamboo.getWidth(), vertical_bamboo.getHeight()-200);
         game.batch.draw(horizontal_bamboo, 1265, 290);

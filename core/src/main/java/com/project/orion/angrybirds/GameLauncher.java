@@ -22,7 +22,7 @@ public class GameLauncher extends Game {
         introMusic = Gdx.audio.newMusic(Gdx.files.internal("game_intro.mp3"));
         introMusic.setLooping(true);
         introMusic.play();
-        this.setScreen(new StartupScreen(this));
+//        this.setScreen(new StartupScreen(this));
 //        this.setScreen(new MainMenuScreen(this));
 //        this.setScreen(new LevelSelectionScreen(this));
 //        this.setScreen(new LoadGameScreen(this));
@@ -30,6 +30,8 @@ public class GameLauncher extends Game {
 //        this.setScreen(new LoseScreen(this));
 //        this.setScreen(new PauseScreen(this));
 //        this.setScreen(new MainGameScreen(this));
+//        this.setScreen(new SmallPigScreen(this));
+        this.setScreen(new Level1GameScreen(this));
     }
 
     @Override
