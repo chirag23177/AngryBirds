@@ -71,6 +71,10 @@ public class Level1GameScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
+//                touchPos.y = game.viewport.getWorldHeight() - touchPos.y;
+                touchPos.x = touchPos.x - 32;
+                touchPos.y = touchPos.y - 362;
+
                 if (isNearBird(touchPos)) {
                     isDragging = true;
                     initialTouchPosition.set(touchPos);
@@ -84,6 +88,9 @@ public class Level1GameScreen implements Screen {
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
                     currentTouchPosition.set(game.viewport.unproject(new Vector2(x, y)));
+                    currentTouchPosition.x = currentTouchPosition.x - 32;
+                    currentTouchPosition.y = currentTouchPosition.y - 362;
+
                     if (currentTouchPosition.dst(initialTouchPosition) > MAX_DRAG_DISTANCE) {
                         currentTouchPosition.sub(initialTouchPosition).nor().scl(MAX_DRAG_DISTANCE).add(initialTouchPosition);
                     }
@@ -110,6 +117,7 @@ public class Level1GameScreen implements Screen {
 
     private boolean isNearBird(Vector2 touchPos) {
         Vector2 birdPos = redBird.getBody().getPosition();
+        System.out.println("birdPos" +  birdPos + "touchPos" + touchPos);
         return touchPos.dst(birdPos) < 100f;
     }
 
