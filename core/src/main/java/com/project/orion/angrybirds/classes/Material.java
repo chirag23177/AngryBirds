@@ -1,22 +1,3 @@
-//package com.project.orion.angrybirds.classes;
-//
-//public abstract class Material {
-//    int durability;
-//    String shape;
-//
-//    public void reduceDurability(int damage) {};
-//    public boolean isDestroyed() {
-//        return true;
-//    };
-//    public String getShape() {
-//        return "angry birds";
-//    };
-//    public int getDurability() {
-//        return 3;
-//    };
-//}
-
-
 package com.project.orion.angrybirds.classes;
 
 import com.badlogic.gdx.graphics.Texture;
@@ -40,10 +21,27 @@ public abstract class Material {
         createBody(x, y, sX, sY);
     }
 
-    protected abstract void createBody(float x, float y, float sX, float sY);
+    protected void createBody(float x, float y, float sX, float sY) {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(x, y);
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        body = world.createBody(bodyDef);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(sX / 2, sY / 2);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1.0f;
+        fixtureDef.friction = 0.5f;
+        fixtureDef.restitution = 0.1f;
+
+        body.createFixture(fixtureDef);
+        shape.dispose();
+    }
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, body.getPosition().x - sizeX/2, body.getPosition().y - sizeY/2, sizeX, sizeY);
+        batch.draw(texture, body.getPosition().x - sizeX / 2, body.getPosition().y - sizeY / 2, sizeX, sizeY);
     }
 
     public void dispose() {
@@ -57,9 +55,11 @@ public abstract class Material {
             dispose();
         }
     }
+
     public int getDurability() {
         return durability;
     }
+
     public Body getBody() {
         return body;
     }
