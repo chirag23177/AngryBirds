@@ -29,7 +29,7 @@ public class Level1GameScreen implements Screen {
 
     private RedBird redBird;
     private Ground ground;
-    private Structure1 structure1;
+    private Structure3 structure1;
 
     private final Stage stage;
 
@@ -71,7 +71,7 @@ public class Level1GameScreen implements Screen {
 
         // Create ground and structure
         ground = new Ground(world, 130);
-        structure1 = new Structure1(world);
+        structure1 = new Structure3(world);
 
         // Create bird at the specified position
         redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
@@ -81,6 +81,7 @@ public class Level1GameScreen implements Screen {
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+//                Vector2 touchPos = new Vector2(x, y);
                 Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
                 touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
                 touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
@@ -102,6 +103,7 @@ public class Level1GameScreen implements Screen {
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
+//                    Vector2 touchPos = new Vector2(x, y);
                     Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
                     touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
                     touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();

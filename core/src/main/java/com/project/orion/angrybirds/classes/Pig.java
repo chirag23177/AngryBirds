@@ -33,8 +33,10 @@ public abstract class Pig {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1;
-        fixtureDef.friction = 0.5f;
+
+        fixtureDef.friction = 1f;
         fixtureDef.restitution = 0.2f;
+
 
         body.createFixture(fixtureDef);
         shape.dispose();
