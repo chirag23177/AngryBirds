@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Structure {
     protected ArrayList<Material> materials;
@@ -64,5 +65,9 @@ public abstract class Structure {
         for (Pig pig : pigs) {
             pig.dispose();
         }
+    }
+
+    public List<Material> getMaterials() {
+        return materials;
     }
 }

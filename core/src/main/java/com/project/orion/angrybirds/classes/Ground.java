@@ -40,7 +40,7 @@ public class Ground {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = wallShape;
-        fixtureDef.friction = 0.5f;
+        fixtureDef.friction = .99f;
 
         // Left wall
         bodyDef.position.set(0, 0);
@@ -57,5 +57,9 @@ public class Ground {
 
     public void dispose() {
         // No texture to dispose
+    }
+
+    public float getHeight() {
+        return 130; // Assuming the height of the ground is 10 units
     }
 }
