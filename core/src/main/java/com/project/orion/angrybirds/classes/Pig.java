@@ -11,6 +11,7 @@ public abstract class Pig {
     protected Body body;
     protected World world;
     private boolean markedForDestruction = false;
+    private boolean hasTakenDamage = false;
 
     public Pig(World world, String texturePath, float x, float y, float size, int health) {
         this.world = world;
@@ -76,5 +77,13 @@ public abstract class Pig {
 
     public boolean isMarkedForDestruction() {
         return markedForDestruction;
+    }
+
+    public boolean hasTakenDamage() {
+        return hasTakenDamage;
+    }
+
+    public void setHasTakenDamage(boolean hasTakenDamage) {
+        this.hasTakenDamage = hasTakenDamage;
     }
 }
