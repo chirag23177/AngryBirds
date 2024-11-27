@@ -182,6 +182,14 @@ public class Level1GameScreen implements Screen {
             return false;
         });
 
+        structure1.getPigs().removeIf(pig -> {
+            if (pig.isMarkedForDestruction()) {
+                bodiesToDestroy.add(pig.getBody());
+                return true;
+            }
+            return false;
+        });
+
         for (Body body : bodiesToDestroy) {
             world.destroyBody(body);
         }
@@ -239,6 +247,21 @@ public class Level1GameScreen implements Screen {
                 if (isRedBirdCollision(fixtureA, fixtureB)) {
                     handleBirdCollision(fixtureA, fixtureB);
                 }
+
+                // If the material hits the ground, it takes damage
+                if (isMaterialGroundCollision(fixtureA, fixtureB)) {
+                    handleMaterialGroundCollision(fixtureA, fixtureB);
+                }
+
+                // If the pig hits the ground, it takes damage
+                if (isPigGroundCollision(fixtureA, fixtureB)) {
+                    handlePigGroundCollision(fixtureA, fixtureB);
+                }
+
+                //If structure hits the pig, it takes damage
+                if (isStructurePigCollision(fixtureA, fixtureB)){
+                    handleStructurePigCollision(fixtureA, fixtureB);
+                }
             }
 
             @Override
@@ -261,8 +284,42 @@ public class Level1GameScreen implements Screen {
         world.setContactListener(contactListener);
     }
 
+    private boolean isPigGroundCollision(Fixture fixtureA, Fixture fixtureB) {
+        return (isGround(fixtureA) && isPig(fixtureB)) ||
+            (isGround(fixtureB) && isPig(fixtureA));
+    }
+
+    private boolean isStructurePigCollision(Fixture fixtureA, Fixture fixtureB) {
+        return (isMaterial(fixtureA) && isPig(fixtureB)) ||
+            (isMaterial(fixtureB) && isPig(fixtureA));
+    }
+
+    private boolean isMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB) {
+        return (isGround(fixtureA) && isMaterial(fixtureB)) ||
+            (isGround(fixtureB) && isMaterial(fixtureA));
+    }
+
+    private boolean isGround(Fixture fixture) {
+        return  fixture.getBody() == ground.getGroundBody();
+    }
+
+    private boolean isMaterial(Fixture fixture) {
+        return structure1.containsBody(fixture.getBody());
+    }
+
+    private void handleMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB){
+        Body materialBody = isMaterial(fixtureA) ? fixtureA.getBody() : fixtureB.getBody();
+        for (Material material : structure1.getMaterials()) {
+            if (material.getBody() == materialBody && !material.hasTakenDamage()) {
+                if (material.getBody().getPosition().y>ground.getHeight())
+                material.reduceDurability(10);
+                material.setHasTakenDamage(true);
+                break;
+            }
+        }
+    }
+
     private boolean isRedBirdCollision(Fixture fixtureA, Fixture fixtureB) {
-        // Check if either fixture is the red bird
         return (fixtureA.getBody() == redBird.getBody() ||
             fixtureB.getBody() == redBird.getBody());
     }
@@ -270,23 +327,52 @@ public class Level1GameScreen implements Screen {
     private void handleBirdCollision(Fixture fixtureA, Fixture fixtureB) {
         Body otherBody = fixtureA.getBody() == redBird.getBody() ?
             fixtureB.getBody() : fixtureA.getBody();
-
-        // You might want to add a user data to your structure elements to identify them
-        // For example, in your Structure or Material classes, you could do:
-        // body.setUserData("structure");
-
-        // Check if the collision is with a structure element
         if (isStructureElement(otherBody)) {
-            // Trigger any specific bird collision behavior
             onBirdHitStructure(otherBody);
+        } else if (isPig(otherBody)) {
+            onBirdHitPig(otherBody);
+
+        }
+    }
+
+    private void handlePigGroundCollision(Fixture fixtureA, Fixture fixtureB) {
+        Body pigBody = isPig(fixtureA) ? fixtureA.getBody() : fixtureB.getBody();
+        for (Pig pig : structure1.getPigs()) {
+            if (pig.getBody() == pigBody && !pig.hasTakenDamage()) {
+                // Check if the pig is directly on the ground
+                if (pig.getBody().getPosition().y > ground.getHeight()) {
+                    pig.reduceHealth(10);
+                    pig.setHasTakenDamage(true);
+                }
+                break;
+            }
+        }
+    }
+
+    private void handleStructurePigCollision(Fixture fixtureA, Fixture fixtureB) {
+        Body pigBody = isPig(fixtureA) ? fixtureA.getBody() : fixtureB.getBody();
+        Body structureBody = isMaterial(fixtureA) ? fixtureA.getBody() : fixtureB.getBody();
+        for (Pig pig : structure1.getPigs()) {
+            if (pig.getBody() == pigBody && !pig.hasTakenDamage()) {
+                pig.reduceHealth(10);
+                pig.setHasTakenDamage(true);
+                break;
+            }
         }
     }
 
     private boolean isStructureElement(Body body) {
-        // This method would check if the body is part of the structure
-        // You might need to add user data or implement a more specific check
-        return body == structure1.getPrimaryBody() ||
+        Body primaryBody = structure1.getPrimaryBody();
+        return (primaryBody != null && body == primaryBody) ||
             structure1.containsBody(body);
+    }
+
+    private boolean isPig(Body body) {
+        return structure1.containsPig(body);
+    }
+
+    private boolean isPig(Fixture fixture) {
+        return structure1.containsPig(fixture.getBody());
     }
 
     private void onBirdHitStructure(Body body) {
@@ -298,9 +384,16 @@ public class Level1GameScreen implements Screen {
                 break;
             }
         }
+    }
 
-        // Optional: Apply additional impulse or damage
-//        redBird.applyDamage(); // Implement this method in RedBird class
+    private void onBirdHitPig(Body body) {
+        System.out.println("Bird hit the pig!");
+        for (Pig pig : structure1.getPigs()) {
+            if (pig.getBody() == body) {
+                pig.reduceHealth(redBird.getImpact());
+                break;
+            }
+        }
     }
 
 

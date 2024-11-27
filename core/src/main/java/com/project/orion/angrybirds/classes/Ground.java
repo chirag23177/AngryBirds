@@ -62,4 +62,8 @@ public class Ground {
     public float getHeight() {
         return 130; // Assuming the height of the ground is 10 units
     }
+
+    public Body getGroundBody() {
+        return groundBody;
+    }
 }

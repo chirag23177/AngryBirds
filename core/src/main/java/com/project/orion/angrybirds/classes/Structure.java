@@ -1,6 +1,7 @@
 package com.project.orion.angrybirds.classes;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 
 import java.util.ArrayList;
@@ -69,5 +70,18 @@ public abstract class Structure {
 
     public List<Material> getMaterials() {
         return materials;
+    }
+
+    public List<Pig> getPigs() {
+        return pigs;
+    }
+
+    public boolean containsBody(Body body) {
+       return pigs.stream().anyMatch(pig -> pig.getBody() == body);
+    }
+
+    public boolean containsPig(Body body) {
+        return pigs.stream().anyMatch(pig -> pig.getBody() == body);
+
     }
 }

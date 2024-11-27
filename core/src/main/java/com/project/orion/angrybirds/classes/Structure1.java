@@ -15,7 +15,10 @@ public class Structure1 extends Structure {
     }
     public Body getPrimaryBody() {
         // Return the main body of the structure if applicable
-        return materials.get(0).getBody(); // Example
+        if (!materials.isEmpty()) {
+            return materials.get(0).getBody();
+        }
+        return null; // Example
     }
 
     public boolean containsBody(Body body) {
