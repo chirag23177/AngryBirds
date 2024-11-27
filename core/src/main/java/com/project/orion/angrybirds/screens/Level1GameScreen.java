@@ -82,11 +82,13 @@ public class Level1GameScreen implements Screen {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
+                touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
+                touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
                 // Dont remove this
 //                touchPos.x = touchPos.x - 32;
 //                touchPos.y = touchPos.y - 362;
-                touchPos.x = touchPos.x;
-                touchPos.y = touchPos.y - 481;
+//                touchPos.x = touchPos.x;
+//                touchPos.y = touchPos.y - 481;
 
                 if (isNearBird(touchPos)) {
                     isDragging = true;
@@ -100,12 +102,15 @@ public class Level1GameScreen implements Screen {
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
-                    currentTouchPosition.set(game.viewport.unproject(new Vector2(x, y)));
+                    Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
+                    touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
+                    touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
+                    currentTouchPosition.set(touchPos);
                     // Dont remove this
 //                    currentTouchPosition.x = currentTouchPosition.x - 32;
 //                    currentTouchPosition.y = currentTouchPosition.y - 362;
-                    currentTouchPosition.x = currentTouchPosition.x;
-                    currentTouchPosition.y = currentTouchPosition.y - 481;
+//                    currentTouchPosition.x = currentTouchPosition.x;
+//                    currentTouchPosition.y = currentTouchPosition.y - 481;
 
                     if (currentTouchPosition.dst(initialTouchPosition) > MAX_DRAG_DISTANCE) {
                         currentTouchPosition.sub(initialTouchPosition).nor().scl(MAX_DRAG_DISTANCE).add(initialTouchPosition);
@@ -118,6 +123,7 @@ public class Level1GameScreen implements Screen {
                 if (isDragging) {
                     launchVelocity.set(currentTouchPosition).sub(initialTouchPosition).scl(LAUNCH_POWER_MULTIPLIER);
                     launchVelocity.x = -launchVelocity.x;
+                    launchVelocity.y = -launchVelocity.y;
                     if (launchVelocity.len() > MAX_DRAG_DISTANCE) {
                         launchVelocity.nor().scl(MAX_DRAG_DISTANCE);
                     }
