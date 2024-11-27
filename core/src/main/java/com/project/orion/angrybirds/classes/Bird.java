@@ -79,31 +79,23 @@ public abstract class Bird {
     protected Texture texture;
     protected Body body;
     protected World world;
-
-    private float size;
-//    protected float x;
-//    protected float y;
-
+    protected float size;
 
     public Bird(World world, String texturePath, float x, float y, float size) {
         this.world = world;
         this.texture = new Texture(texturePath);
-        createBody(x, y);
         this.size = size;
+        createBody(x, y, size);
     }
 
-    private void createBody(float x, float y) {
-        // Create body
+    private void createBody(float x, float y, float size) {
         BodyDef bodydef = new BodyDef();
         bodydef.position.set(x, y);
         bodydef.type = BodyDef.BodyType.StaticBody;
-//        bodydef.type = BodyDef.BodyType.DynamicBody;
-//        bodydef.linearDamping = 0.2f; // Optional: reduces excessive sliding/movement
-//        bodydef.angularDamping = 0.2f; // Optional: reduces rotation damping
         body = world.createBody(bodydef);
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(10.0f);
+        shape.setRadius(size/2);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
@@ -119,30 +111,16 @@ public abstract class Bird {
         body.setType(BodyDef.BodyType.DynamicBody);
     }
 
-
     public void setStatic() {
         body.setType(BodyDef.BodyType.StaticBody);
     }
-//
-//    public void applyVelocity(Vector2 velocity) {
-//        body.setLinearVelocity(velocity);
-//    }
-//
-//    public void setPosition(Vector2 position) {
-//        body.setTransform(position, body.getAngle());
-//    }
-
-
-
 
     public void fly() {}
-
 
     public void hitTarget() {}
 
     public void render(SpriteBatch batch) {
-//        float birdSize = 100.0f; // Increase the size of the birds
-        batch.draw(texture, body.getPosition().x - size / 2, body.getPosition().y - size / 2, size, size);
+        batch.draw(texture, body.getPosition().x - size/2, body.getPosition().y - size/2, size, size);
     }
 
     public void dispose() {
@@ -155,15 +133,21 @@ public abstract class Bird {
 
     public int getImpact() {
         return impact;
-
-    };
+    }
 
     public Body getBody() {
         return body;
     }
 
+    public Vector2 getPosition() {
+        return body.getPosition();
+    }
+
+    public void setLinearVelocity(Vector2 velocity) {
+        body.setLinearVelocity(velocity);
+    }
 
     public Texture getTexture() {
         return texture;
     }
-
+}
