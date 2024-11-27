@@ -13,6 +13,7 @@ public abstract class Material {
     protected float sizeX;
     protected float sizeY;
     private boolean markedForDestruction = false;
+    private boolean hasTakenDamage = false;
 
     public Material(World world, String texturePath, float x, float y, float sX, float sY) {
         this.world = world;
@@ -75,5 +76,13 @@ public abstract class Material {
 
     public boolean isMarkedForDestruction() {
         return markedForDestruction;
+    }
+
+    public boolean hasTakenDamage() {
+        return hasTakenDamage;
+    }
+
+    public void setHasTakenDamage(boolean hasTakenDamage) {
+        this.hasTakenDamage = hasTakenDamage;
     }
 }

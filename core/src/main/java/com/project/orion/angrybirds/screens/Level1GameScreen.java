@@ -245,6 +245,11 @@ public class Level1GameScreen implements Screen {
                 if (isRedBirdCollision(fixtureA, fixtureB)) {
                     handleBirdCollision(fixtureA, fixtureB);
                 }
+
+                // If the material hits the ground, it takes damage
+                if (isMaterialGroundCollision(fixtureA, fixtureB)) {
+                    handleMaterialGroundCollision(fixtureA, fixtureB);
+                }
             }
 
             @Override
@@ -265,6 +270,31 @@ public class Level1GameScreen implements Screen {
 
         // Add the contact listener to the world
         world.setContactListener(contactListener);
+    }
+
+    private boolean isMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB) {
+        return (isGround(fixtureA) && isMaterial(fixtureB)) ||
+            (isGround(fixtureB) && isMaterial(fixtureA));
+    }
+
+    private boolean isGround(Fixture fixture) {
+        return  fixture.getBody() == ground.getGroundBody();
+    }
+
+    private boolean isMaterial(Fixture fixture) {
+        return structure1.containsBody(fixture.getBody());
+    }
+
+    private void handleMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB){
+        Body materialBody = isMaterial(fixtureA) ? fixtureA.getBody() : fixtureB.getBody();
+        for (Material material : structure1.getMaterials()) {
+            if (material.getBody() == materialBody && !material.hasTakenDamage()) {
+                if (material.getBody().getPosition().y>ground.getHeight())
+                material.reduceDurability(10);
+                material.setHasTakenDamage(true);
+                break;
+            }
+        }
     }
 
     private boolean isRedBirdCollision(Fixture fixtureA, Fixture fixtureB) {
@@ -293,10 +323,11 @@ public class Level1GameScreen implements Screen {
     }
 
     private boolean isStructureElement(Body body) {
-        // This method would check if the body is part of the structure
-        // You might need to add user data or implement a more specific check
-        return body == structure1.getPrimaryBody() ||
+        Body primaryBody = structure1.getPrimaryBody();
+        return (primaryBody != null && body == primaryBody) ||
             structure1.containsBody(body);
+//        return body == structure1.getPrimaryBody() ||
+//            structure1.containsBody(body);
     }
 
     private boolean isPig(Body body) {
