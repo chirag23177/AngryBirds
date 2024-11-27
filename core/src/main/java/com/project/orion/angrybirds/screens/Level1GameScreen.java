@@ -14,12 +14,17 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.project.orion.angrybirds.GameLauncher;
 import com.project.orion.angrybirds.classes.Ground;
+import com.project.orion.angrybirds.classes.ProjectileEquation;
 import com.project.orion.angrybirds.classes.RedBird;
 import com.project.orion.angrybirds.classes.Structure1;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Level1GameScreen implements Screen {
     private GameLauncher game;
     private Texture background;
+    private Texture catapult;
     private Music gameMusic;
     private World world;
     private Box2DDebugRenderer debugRenderer;
@@ -43,19 +48,30 @@ public class Level1GameScreen implements Screen {
     private static final Vector2 BIRD_POSITION = new Vector2(200f, 300);
     private static final Vector2 GRAB_REGION_CENTRE = new Vector2(200f, 300f);
 
+    //Projectile equation
+    private ProjectileEquation projectileEquation;
+
+    // Collision
+    private ContactListener contactListener;
+
     public Level1GameScreen(GameLauncher game) {
         this.game = game;
         stage = new Stage(game.viewport, game.batch);
         shapeRenderer = new ShapeRenderer();
+        projectileEquation = new ProjectileEquation();
+        projectileEquation.setGravity(9.8f);
+        world = new World(new Vector2(0, -9.8f), true);
+        setupContactListner();
     }
 
     @Override
     public void show() {
         game.introMusic.pause();
         background = new Texture("game_background.png");
+        catapult = new Texture("slingshot.png");
 
         // Setup world with realistic gravity
-        world = new World(new Vector2(0, -9.8f), true);
+//        world = new World(new Vector2(0, -9.8f), true);
         debugRenderer = new Box2DDebugRenderer();
 
         // Create ground and structure
@@ -66,14 +82,19 @@ public class Level1GameScreen implements Screen {
         redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
         redBird.setStatic(); // Keep bird stationary until launched
 
+//        projectileEquation = new ProjectileEquation();
+//        projectileEquation.setGravity(-9.8f);
+
         // Touch input handling
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
-//                touchPos.y = game.viewport.getWorldHeight() - touchPos.y;
-                touchPos.x = touchPos.x - 32;
-                touchPos.y = touchPos.y - 362;
+                // Dont remove this
+//                touchPos.x = touchPos.x - 32;
+//                touchPos.y = touchPos.y - 362;
+                touchPos.x = touchPos.x;
+                touchPos.y = touchPos.y - 481;
 
                 if (isNearBird(touchPos)) {
                     isDragging = true;
@@ -88,8 +109,11 @@ public class Level1GameScreen implements Screen {
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
                     currentTouchPosition.set(game.viewport.unproject(new Vector2(x, y)));
-                    currentTouchPosition.x = currentTouchPosition.x - 32;
-                    currentTouchPosition.y = currentTouchPosition.y - 362;
+                    // Dont remove this
+//                    currentTouchPosition.x = currentTouchPosition.x - 32;
+//                    currentTouchPosition.y = currentTouchPosition.y - 362;
+                    currentTouchPosition.x = currentTouchPosition.x;
+                    currentTouchPosition.y = currentTouchPosition.y - 481;
 
                     if (currentTouchPosition.dst(initialTouchPosition) > MAX_DRAG_DISTANCE) {
                         currentTouchPosition.sub(initialTouchPosition).nor().scl(MAX_DRAG_DISTANCE).add(initialTouchPosition);
@@ -106,8 +130,11 @@ public class Level1GameScreen implements Screen {
                         launchVelocity.nor().scl(MAX_DRAG_DISTANCE);
                     }
                     redBird.setDynamic();
-                    redBird.getBody().setLinearVelocity(launchVelocity);
+                    redBird.getBody().setLinearVelocity(launchVelocity.scl(100));
                     isDragging = false;
+
+//                    projectileEquation.setStartVelocity(launchVelocity);
+//                    projectileEquation.setStartPoint(redBird.getBody().getPosition());
                 }
             }
         });
@@ -117,7 +144,7 @@ public class Level1GameScreen implements Screen {
 
     private boolean isNearBird(Vector2 touchPos) {
         Vector2 birdPos = redBird.getBody().getPosition();
-        System.out.println("birdPos" +  birdPos + "touchPos" + touchPos);
+        System.out.println("birdPos" + birdPos + "touchPos" + touchPos);
         return touchPos.dst(birdPos) < 100f;
     }
 
@@ -133,15 +160,132 @@ public class Level1GameScreen implements Screen {
 
         game.batch.begin();
         game.batch.draw(background, 0, 0, worldWidth, worldHeight);
+        game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
         redBird.render(game.batch);
         structure1.render(game.batch);
         game.batch.end();
+
+        if (isDragging) {
+            renderTrajectory();
+        }
 
         debugRenderer.render(world, game.viewport.getCamera().combined);
 
         stage.act(delta);
         stage.draw();
     }
+
+    private void renderTrajectory() {
+        // Ensure projectile equation is set up correctly
+        projectileEquation.setStartVelocity(launchVelocity);
+//        Vector2 birdPosition = redBird.getBody().getPosition();
+        Vector2 birdPosition = new Vector2(200, 300);
+        projectileEquation.setStartPoint(birdPosition);
+        projectileEquation.setGravity(-9.8f);
+
+        shapeRenderer.setProjectionMatrix(game.viewport.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(1, 1, 0, 0.7f); // Semi-transparent yellow
+
+        float timeStep = 0.05f;  // Smaller time step for smoother curve
+        float t = 0f;
+        int numSteps = 150;  // More steps for a longer, smoother trajectory
+
+        Vector2 previousPoint = new Vector2(birdPosition);
+
+        for (int i = 0; i < numSteps; i++) {
+            // Calculate trajectory point
+            float x = 200 + projectileEquation.getX(t);
+            float y = 300 + projectileEquation.getY(t);
+
+            // Draw line segments instead of circles for smoother trajectory
+            if (i > 0) {
+                shapeRenderer.line(previousPoint.x, previousPoint.y,1500, 400);
+            }
+
+            previousPoint.set(x, y);
+            t += timeStep;
+
+            // Optional: Stop drawing if trajectory goes below ground level
+            if (y < ground.getHeight()) {
+                break;
+            }
+        }
+
+        shapeRenderer.end();
+    }
+
+    private void setupContactListner(){
+        contactListener = new ContactListener() {
+            @Override
+            public void beginContact(Contact contact) {
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+
+                // Check if the bird is involved in the collision
+                if (isRedBirdCollision(fixtureA, fixtureB)) {
+                    handleBirdCollision(fixtureA, fixtureB);
+                }
+            }
+
+            @Override
+            public void endContact(Contact contact) {
+                // Not needed for this implementation
+            }
+
+            @Override
+            public void preSolve(Contact contact, Manifold oldManifold) {
+                // Not needed for this implementation
+            }
+
+            @Override
+            public void postSolve(Contact contact, ContactImpulse impulse) {
+                // Can be used to check collision intensity if needed
+            }
+        };
+
+        // Add the contact listener to the world
+        world.setContactListener(contactListener);
+    }
+
+    private boolean isRedBirdCollision(Fixture fixtureA, Fixture fixtureB) {
+        // Check if either fixture is the red bird
+        return (fixtureA.getBody() == redBird.getBody() ||
+            fixtureB.getBody() == redBird.getBody());
+    }
+
+    private void handleBirdCollision(Fixture fixtureA, Fixture fixtureB) {
+        Body otherBody = fixtureA.getBody() == redBird.getBody() ?
+            fixtureB.getBody() : fixtureA.getBody();
+
+        // You might want to add a user data to your structure elements to identify them
+        // For example, in your Structure or Material classes, you could do:
+        // body.setUserData("structure");
+
+        // Check if the collision is with a structure element
+        if (isStructureElement(otherBody)) {
+            // Trigger any specific bird collision behavior
+            onBirdHitStructure();
+        }
+    }
+
+    private boolean isStructureElement(Body body) {
+        // This method would check if the body is part of the structure
+        // You might need to add user data or implement a more specific check
+        return body == structure1.getPrimaryBody() ||
+            structure1.containsBody(body);
+    }
+
+    private void onBirdHitStructure() {
+        // Add any special effects or scoring logic here
+        System.out.println("Bird hit the structure!");
+
+        // Optional: Apply additional impulse or damage
+//        redBird.applyDamage(); // Implement this method in RedBird class
+    }
+
+
+
 
     @Override
     public void resize(int width, int height) {
@@ -160,6 +304,7 @@ public class Level1GameScreen implements Screen {
     @Override
     public void dispose() {
         background.dispose();
+        catapult.dispose();
         gameMusic.dispose();
         redBird.dispose();
         world.dispose();
