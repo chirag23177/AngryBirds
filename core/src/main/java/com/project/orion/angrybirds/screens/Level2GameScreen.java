@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -17,7 +18,7 @@ import com.project.orion.angrybirds.classes.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Level1GameScreen implements Screen {
+public class Level2GameScreen implements Screen {
     private GameLauncher game;
     private Texture background;
     private Texture catapult;
@@ -28,7 +29,7 @@ public class Level1GameScreen implements Screen {
 
     private RedBird redBird;
     private Ground ground;
-    private Structure3 structure;
+    private Structure2 structure;
 
     private final Stage stage;
 
@@ -51,7 +52,7 @@ public class Level1GameScreen implements Screen {
     private ContactListener contactListener;
     private List<Body> bodiesToDestroy = new ArrayList<>();
 
-    public Level1GameScreen(GameLauncher game) {
+    public Level2GameScreen(GameLauncher game) {
         this.game = game;
         stage = new Stage(game.viewport, game.batch);
         shapeRenderer = new ShapeRenderer();
@@ -70,7 +71,7 @@ public class Level1GameScreen implements Screen {
 
         // Create ground and structure
         ground = new Ground(world, 130);
-        structure = new Structure3(world);
+        structure = new Structure2(world);
 
         // Create bird at the specified position
         redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
@@ -311,7 +312,7 @@ public class Level1GameScreen implements Screen {
         for (Material material : structure.getMaterials()) {
             if (material.getBody() == materialBody && !material.hasTakenDamage()) {
                 if (material.getBody().getPosition().y>ground.getHeight())
-                material.reduceDurability(10);
+                    material.reduceDurability(10);
                 material.setHasTakenDamage(true);
                 break;
             }
