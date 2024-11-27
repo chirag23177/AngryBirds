@@ -34,7 +34,7 @@ public abstract class Material {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.5f;
+        fixtureDef.friction = 1000f;
         fixtureDef.restitution = 0.1f;
 
         body.createFixture(fixtureDef);
