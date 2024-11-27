@@ -1,21 +1,3 @@
-//package com.project.orion.angrybirds.classes;
-//
-//public abstract class Pig {
-//    float size;
-//    int health;
-//
-//    public void reduceHealth(int damage) {};
-//    public boolean isDestroyed() {
-//        return true;
-//    };
-//    public float getSize() {
-//        return 1;
-//    };
-//    public int getHealth() {
-//        return 0;
-//    };
-//}
-
 package com.project.orion.angrybirds.classes;
 
 import com.badlogic.gdx.graphics.Texture;
@@ -28,6 +10,8 @@ public abstract class Pig {
     protected Texture texture;
     protected Body body;
     protected World world;
+    private boolean markedForDestruction = false;
+    private boolean hasTakenDamage = false;
 
     public Pig(World world, String texturePath, float x, float y, float size, int health) {
         this.world = world;
@@ -49,17 +33,21 @@ public abstract class Pig {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1;
-        fixtureDef.friction = 1000f;
-        fixtureDef.restitution = 0.6f;
+
+        fixtureDef.friction = 1f;
+        fixtureDef.restitution = 0.2f;
+
 
         body.createFixture(fixtureDef);
         shape.dispose();
     }
 
+
+
     public void reduceHealth(int damage) {
         health -= damage;
         if (health <= 0) {
-            dispose();
+            markedForDestruction = true;
         }
     }
 
@@ -68,7 +56,9 @@ public abstract class Pig {
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, body.getPosition().x - size / 2, body.getPosition().y - size / 2, size, size);
+        if (!markedForDestruction) {
+            batch.draw(texture, body.getPosition().x - size / 2, body.getPosition().y - size / 2, size, size);
+        }
     }
 
     public void dispose() {
@@ -85,5 +75,17 @@ public abstract class Pig {
     }
     public Body getBody() {
         return body;
+    }
+
+    public boolean isMarkedForDestruction() {
+        return markedForDestruction;
+    }
+
+    public boolean hasTakenDamage() {
+        return hasTakenDamage;
+    }
+
+    public void setHasTakenDamage(boolean hasTakenDamage) {
+        this.hasTakenDamage = hasTakenDamage;
     }
 }
