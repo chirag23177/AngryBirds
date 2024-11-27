@@ -40,8 +40,20 @@ public abstract class Material {
         shape.dispose();
     }
 
+//    public void render(SpriteBatch batch) {
+//        batch.draw(texture, body.getPosition().x - sizeX / 2, body.getPosition().y - sizeY / 2, sizeX, sizeY);
+//    }
+
     public void render(SpriteBatch batch) {
-        batch.draw(texture, body.getPosition().x - sizeX / 2, body.getPosition().y - sizeY / 2, sizeX, sizeY);
+        batch.draw(texture,
+            body.getPosition().x - sizeX / 2, body.getPosition().y - sizeY / 2,
+            sizeX / 2, sizeY / 2,
+            sizeX, sizeY,
+            1, 1,
+            (float) Math.toDegrees(body.getAngle()),
+            0, 0,
+            texture.getWidth(), texture.getHeight(),
+            false, false);
     }
 
     public void dispose() {
