@@ -180,6 +180,14 @@ public class Level1GameScreen implements Screen {
             return false;
         });
 
+        structure1.getPigs().removeIf(pig -> {
+            if (pig.isMarkedForDestruction()) {
+                bodiesToDestroy.add(pig.getBody());
+                return true;
+            }
+            return false;
+        });
+
         for (Body body : bodiesToDestroy) {
             world.destroyBody(body);
         }
@@ -277,6 +285,10 @@ public class Level1GameScreen implements Screen {
         if (isStructureElement(otherBody)) {
             // Trigger any specific bird collision behavior
             onBirdHitStructure(otherBody);
+        } else if (isPig(otherBody)) {
+            // Trigger any specific bird collision behavior
+            onBirdHitPig(otherBody);
+
         }
     }
 
@@ -285,6 +297,10 @@ public class Level1GameScreen implements Screen {
         // You might need to add user data or implement a more specific check
         return body == structure1.getPrimaryBody() ||
             structure1.containsBody(body);
+    }
+
+    private boolean isPig(Body body) {
+        return structure1.containsPig(body);
     }
 
     private void onBirdHitStructure(Body body) {
@@ -296,9 +312,16 @@ public class Level1GameScreen implements Screen {
                 break;
             }
         }
+    }
 
-        // Optional: Apply additional impulse or damage
-//        redBird.applyDamage(); // Implement this method in RedBird class
+    private void onBirdHitPig(Body body) {
+        System.out.println("Bird hit the pig!");
+        for (Pig pig : structure1.getPigs()) {
+            if (pig.getBody() == body) {
+                pig.reduceHealth(redBird.getImpact());
+                break;
+            }
+        }
     }
 
 
