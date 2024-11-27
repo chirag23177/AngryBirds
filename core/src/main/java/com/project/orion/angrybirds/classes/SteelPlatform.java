@@ -24,7 +24,7 @@ public class SteelPlatform extends Material {
     protected void createBody(float x, float y, float sX, float sY) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
-        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         body = world.createBody(bodyDef);
 
         PolygonShape platformShape = new PolygonShape();
