@@ -12,6 +12,7 @@ public abstract class Material {
     protected Texture texture;
     protected float sizeX;
     protected float sizeY;
+    private boolean markedForDestruction = false;
 
     public Material(World world, String texturePath, float x, float y, float sX, float sY) {
         this.world = world;
@@ -40,10 +41,6 @@ public abstract class Material {
         shape.dispose();
     }
 
-//    public void render(SpriteBatch batch) {
-//        batch.draw(texture, body.getPosition().x - sizeX / 2, body.getPosition().y - sizeY / 2, sizeX, sizeY);
-//    }
-
     public void render(SpriteBatch batch) {
         batch.draw(texture,
             body.getPosition().x - sizeX / 2, body.getPosition().y - sizeY / 2,
@@ -64,7 +61,7 @@ public abstract class Material {
     public void reduceDurability(int damage) {
         durability -= damage;
         if (durability <= 0) {
-            dispose();
+            markedForDestruction = true;
         }
     }
 
@@ -74,5 +71,9 @@ public abstract class Material {
 
     public Body getBody() {
         return body;
+    }
+
+    public boolean isMarkedForDestruction() {
+        return markedForDestruction;
     }
 }

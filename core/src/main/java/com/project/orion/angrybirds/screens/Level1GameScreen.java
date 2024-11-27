@@ -13,10 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.project.orion.angrybirds.GameLauncher;
-import com.project.orion.angrybirds.classes.Ground;
-import com.project.orion.angrybirds.classes.ProjectileEquation;
-import com.project.orion.angrybirds.classes.RedBird;
-import com.project.orion.angrybirds.classes.Structure1;
+import com.project.orion.angrybirds.classes.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +50,7 @@ public class Level1GameScreen implements Screen {
 
     // Collision
     private ContactListener contactListener;
+    private List<Body> bodiesToDestroy = new ArrayList<>();
 
     public Level1GameScreen(GameLauncher game) {
         this.game = game;
@@ -69,9 +67,6 @@ public class Level1GameScreen implements Screen {
         game.introMusic.pause();
         background = new Texture("game_background.png");
         catapult = new Texture("slingshot.png");
-
-        // Setup world with realistic gravity
-//        world = new World(new Vector2(0, -9.8f), true);
         debugRenderer = new Box2DDebugRenderer();
 
         // Create ground and structure
@@ -81,9 +76,6 @@ public class Level1GameScreen implements Screen {
         // Create bird at the specified position
         redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
         redBird.setStatic(); // Keep bird stationary until launched
-
-//        projectileEquation = new ProjectileEquation();
-//        projectileEquation.setGravity(-9.8f);
 
         // Touch input handling
         stage.addListener(new InputListener() {
@@ -173,6 +165,19 @@ public class Level1GameScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
+
+        structure1.getMaterials().removeIf(material -> {
+            if (material.isMarkedForDestruction()) {
+                bodiesToDestroy.add(material.getBody());
+                return true;
+            }
+            return false;
+        });
+
+        for (Body body : bodiesToDestroy) {
+            world.destroyBody(body);
+        }
+        bodiesToDestroy.clear();
     }
 
     private void renderTrajectory() {
@@ -265,7 +270,7 @@ public class Level1GameScreen implements Screen {
         // Check if the collision is with a structure element
         if (isStructureElement(otherBody)) {
             // Trigger any specific bird collision behavior
-            onBirdHitStructure();
+            onBirdHitStructure(otherBody);
         }
     }
 
@@ -276,9 +281,15 @@ public class Level1GameScreen implements Screen {
             structure1.containsBody(body);
     }
 
-    private void onBirdHitStructure() {
+    private void onBirdHitStructure(Body body) {
         // Add any special effects or scoring logic here
         System.out.println("Bird hit the structure!");
+        for (Material material : structure1.getMaterials()) {
+            if (material.getBody() == body) {
+                material.reduceDurability(redBird.getImpact());
+                break;
+            }
+        }
 
         // Optional: Apply additional impulse or damage
 //        redBird.applyDamage(); // Implement this method in RedBird class
