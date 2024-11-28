@@ -52,11 +52,25 @@ public abstract class Bird {
     public void hitTarget() {}
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, body.getPosition().x - size/2, body.getPosition().y - size/2, size, size);
+        if (body != null) {
+            batch.draw(texture,
+                body.getPosition().x - size / 2, body.getPosition().y - size / 2,
+                size / 2, size / 2,
+                size, size,
+                1, 1,
+                (float) Math.toDegrees(body.getAngle()),
+                0, 0,
+                texture.getWidth(), texture.getHeight(),
+                false, false);
+        }
     }
 
     public void dispose() {
         texture.dispose();
+        if (body != null) {
+            world.destroyBody(body);
+            body = null;
+        }
     }
 
     public int getSpeed() {

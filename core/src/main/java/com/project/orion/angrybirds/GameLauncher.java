@@ -33,9 +33,10 @@ public class GameLauncher extends Game {
 //        this.setScreen(new PauseScreen(this));
 
 //        this.setScreen(new MainGameScreen(this));
-        this.setScreen(new Level1GameScreen(this));
+//        this.setScreen(new Level1GameScreen(this));
 //        this.setScreen(new Level2GameScreen(this));
-//        this.setScreen(new Level3GameScreen(this));
+        this.setScreen(new Level3GameScreen(this));
+//        this.setScreen(new Level3GameScreen2(this));
     }
 
     @Override
@@ -49,4 +50,3 @@ public class GameLauncher extends Game {
         introMusic.dispose();
     }
 }
-
