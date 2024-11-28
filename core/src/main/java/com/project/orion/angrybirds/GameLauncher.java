@@ -5,9 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.project.orion.angrybirds.screens.Level1GameScreen;
-import com.project.orion.angrybirds.screens.Level2GameScreen;
-import com.project.orion.angrybirds.screens.Level3GameScreen;
+import com.project.orion.angrybirds.screens.*;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 

@@ -26,9 +26,9 @@ public class Structure3 extends Structure {
         materials.add(new GlassBox(world, 1400, 610, 40, 40));
         materials.add(new WoodPillar(world, 1155, 550, 45, 152));
         materials.add(new SteelPlatform(world, 1300, 635, 350, 30));
+        pigs.add(new SmallPig(world, 1400, 665));
         pigs.add(new LargePig(world, 1270, 515));
         pigs.add(new MediumPig(world, 1300, 280));
-        pigs.add(new SmallPig(world, 1400, 665));
 //        materials.add(new GlassBox(world, 1430, 660, 5, 5));
 
 //        materials.add(new WoodPillar(world, 1500, 320, 40, 110));

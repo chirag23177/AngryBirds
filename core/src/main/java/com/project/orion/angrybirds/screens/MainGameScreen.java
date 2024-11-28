@@ -41,6 +41,8 @@ public class MainGameScreen implements Screen {
     private Button pauseButton;
     private Button winButton;
     private Button lossButton;
+    private WinPopupScreen winPopupScreen;
+    private LosePopupScreen losePopupScreen;
 
 
     public MainGameScreen(GameLauncher game) {
@@ -96,7 +98,7 @@ public class MainGameScreen implements Screen {
         winButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new WonScreen(game));
+                winPopupScreen.draw();
                 dispose();
             }
         });
@@ -104,7 +106,7 @@ public class MainGameScreen implements Screen {
         lossButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new LoseScreen(game));
+                losePopupScreen.draw();
                 dispose();
             }
         });

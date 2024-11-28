@@ -52,11 +52,10 @@ public abstract class Structure {
         }
 
         pigs.removeIf(Pig::isDestroyed);
-        allPigsDestroyed = pigs.isEmpty();
     }
 
     public boolean areAllPigsDestroyed() {
-        return allPigsDestroyed;
+        return pigs.isEmpty();
     }
 
     public void dispose() {
