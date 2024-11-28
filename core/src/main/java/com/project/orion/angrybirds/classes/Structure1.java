@@ -11,7 +11,7 @@ public class Structure1 extends Structure {
         materials.add(new WoodPillar(world, 1300, 220, 60, 162));
         materials.add(new SteelPlatform(world, 1450, 315, 424, 48));
         materials.add(new GlassBox(world, 1460, 402, 150, 150));
-        pigs.add(new MediumPig(world, 1460, 490));
+        pigs.add(new MediumPig(world, 1460, 510));
     }
     public Body getPrimaryBody() {
         // Return the main body of the structure if applicable

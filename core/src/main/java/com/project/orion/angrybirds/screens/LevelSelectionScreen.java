@@ -89,7 +89,7 @@ public class LevelSelectionScreen implements Screen {
         levelOneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainGameScreen(game));
+                game.setScreen(new Level1GameScreen(game));
                 dispose();
             }
         });
@@ -97,7 +97,7 @@ public class LevelSelectionScreen implements Screen {
         levelTwoButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainGameScreen(game));
+                game.setScreen(new Level2GameScreen(game));
                 dispose();
             }
         });
@@ -105,7 +105,7 @@ public class LevelSelectionScreen implements Screen {
         levelThreeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainGameScreen(game));
+                game.setScreen(new Level3GameScreen(game));
                 dispose();
             }
         });

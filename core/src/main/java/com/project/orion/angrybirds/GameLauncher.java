@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.project.orion.angrybirds.screens.Level1GameScreen;
 import com.project.orion.angrybirds.screens.Level2GameScreen;
 import com.project.orion.angrybirds.screens.Level3GameScreen;
+import com.project.orion.angrybirds.screens.PauseScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 

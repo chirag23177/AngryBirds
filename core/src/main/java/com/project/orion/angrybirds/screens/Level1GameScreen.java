@@ -11,6 +11,9 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.project.orion.angrybirds.GameLauncher;
 import com.project.orion.angrybirds.classes.*;
 
@@ -28,7 +31,7 @@ public class Level1GameScreen implements Screen {
 
     private RedBird redBird;
     private Ground ground;
-    private Structure3 structure;
+    private Structure1 structure;
 
     private final Stage stage;
 
@@ -51,6 +54,15 @@ public class Level1GameScreen implements Screen {
     private ContactListener contactListener;
     private List<Body> bodiesToDestroy = new ArrayList<>();
 
+    // Win and Lose Popups
+    private WinPopupScreen winPopupScreen;
+    private LosePopupScreen losePopupScreen;
+    private PausePopupScreen pausePopupScreen;
+    private boolean gameEnded;
+    private float timer;
+    private Texture pauseTexture;
+    private Button pauseButton;
+
     public Level1GameScreen(GameLauncher game) {
         this.game = game;
         stage = new Stage(game.viewport, game.batch);
@@ -59,18 +71,28 @@ public class Level1GameScreen implements Screen {
         projectileEquation.setGravity(9.8f);
         world = new World(new Vector2(0, -9.8f), true);
         setupContactListner();
+        timer = 0;
     }
 
     @Override
     public void show() {
         game.introMusic.pause();
+
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game_theme.mp3"));
+        gameMusic.setLooping(true);
+        gameMusic.play();
+
         background = new Texture("game_background.png");
         catapult = new Texture("slingshot.png");
         debugRenderer = new Box2DDebugRenderer();
 
         // Create ground and structure
         ground = new Ground(world, 130);
-        structure = new Structure3(world);
+        structure = new Structure1(world);
+
+        winPopupScreen = new WinPopupScreen(game);
+        losePopupScreen = new LosePopupScreen(game);
+        pausePopupScreen = new PausePopupScreen(game, stage);
 
         // Create bird at the specified position
         redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
@@ -138,6 +160,19 @@ public class Level1GameScreen implements Screen {
             }
         });
 
+        pauseTexture = new Texture("pause.png");
+        pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
+        pauseButton.setPosition(10, game.viewport.getWorldHeight() - pauseButton.getHeight() - 10);
+
+        pauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameEnded = true;
+                Gdx.input.setInputProcessor(pausePopupScreen);
+            }
+        });
+
+        stage.addActor(pauseButton);
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -149,50 +184,94 @@ public class Level1GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        timer += delta;
+        if (!gameEnded){
+            if (structure.areAllPigsDestroyed()) {
+                gameEnded = true;
+                Gdx.input.setInputProcessor(winPopupScreen);
+            } else if (allBirdsUsed() && !structure.areAllPigsDestroyed()) {
+                gameEnded = true;
+                Gdx.input.setInputProcessor(losePopupScreen);
+            }
+        }
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        world.step(1 / 60f, 6, 2);
 
         game.viewport.apply();
         game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
-        float worldWidth = game.viewport.getWorldWidth();
-        float worldHeight = game.viewport.getWorldHeight();
 
-        game.batch.begin();
-        game.batch.draw(background, 0, 0, worldWidth, worldHeight);
-        game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
-        redBird.render(game.batch);
-        structure.render(game.batch);
-        game.batch.end();
+        if (!gameEnded) {
+            world.step(1 / 60f, 6, 2);
+            float worldWidth = game.viewport.getWorldWidth();
+            float worldHeight = game.viewport.getWorldHeight();
 
-        if (isDragging) {
-            renderTrajectory();
+            game.batch.begin();
+            game.batch.draw(background, 0, 0, worldWidth, worldHeight);
+            game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
+            redBird.render(game.batch);
+            structure.render(game.batch);
+            game.batch.end();
+
+            if (isDragging) {
+                renderTrajectory();
+            }
+
+            debugRenderer.render(world, game.viewport.getCamera().combined);
+
+            stage.act(delta);
+            stage.draw();
+            structure.getMaterials().removeIf(material -> {
+                if (material.isMarkedForDestruction()) {
+                    bodiesToDestroy.add(material.getBody());
+                    return true;
+                }
+                return false;
+            });
+
+            structure.getPigs().removeIf(pig -> {
+                if (pig.isMarkedForDestruction()) {
+                    bodiesToDestroy.add(pig.getBody());
+                    return true;
+                }
+                return false;
+            });
+
+            for (Body body : bodiesToDestroy) {
+                world.destroyBody(body);
+            }
+            bodiesToDestroy.clear();
+        } else {
+            game.batch.begin();
+            game.batch.draw(background, 0, 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
+            game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
+            redBird.render(game.batch);
+            structure.render(game.batch);
+            game.batch.end();
         }
 
-        debugRenderer.render(world, game.viewport.getCamera().combined);
-
-        stage.act(delta);
-        stage.draw();
-
-        structure.getMaterials().removeIf(material -> {
-            if (material.isMarkedForDestruction()) {
-                bodiesToDestroy.add(material.getBody());
-                return true;
+        if (gameEnded){
+            if (structure.areAllPigsDestroyed()){
+                winPopupScreen.draw();
+            } else if (allBirdsUsed() && !structure.areAllPigsDestroyed()) {
+                losePopupScreen.draw();
+            } else {
+                pausePopupScreen.draw();
+//                if (!gameEnded) {
+//                    Gdx.input.setInputProcessor(stage);
+//                }
             }
-            return false;
-        });
-
-        structure.getPigs().removeIf(pig -> {
-            if (pig.isMarkedForDestruction()) {
-                bodiesToDestroy.add(pig.getBody());
-                return true;
-            }
-            return false;
-        });
-
-        for (Body body : bodiesToDestroy) {
-            world.destroyBody(body);
         }
-        bodiesToDestroy.clear();
+    }
+
+    private boolean allBirdsUsed() {
+        return (timer > 40);
+    }
+
+    public void setGameEnded(boolean gameEnded) {
+        this.gameEnded = gameEnded;
+    }
+
+    public void setPausePopupScreen() {
+        pausePopupScreen = new PausePopupScreen(game, stage);
     }
 
     private void renderTrajectory() {
@@ -421,5 +500,6 @@ public class Level1GameScreen implements Screen {
         world.dispose();
         debugRenderer.dispose();
         shapeRenderer.dispose();
+        gameMusic.dispose();
     }
 }
