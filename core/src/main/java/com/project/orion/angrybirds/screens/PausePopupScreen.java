@@ -1,6 +1,8 @@
 package com.project.orion.angrybirds.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -21,6 +23,7 @@ public class PausePopupScreen extends Stage {
     private Texture save;
     private Texture saveHover;
     private Table table;
+    private Music music;
 
     public PausePopupScreen(GameLauncher game, Stage parentStage) {
         this.game = game;
@@ -81,7 +84,28 @@ public class PausePopupScreen extends Stage {
         soundButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // action according to it
+                if (game.getScreen() instanceof Level1GameScreen) {
+                    music = ((Level1GameScreen)game.getScreen()).getGameMusic();
+                    if (music.isPlaying()) {
+                        music.pause();
+                    } else {
+                        music.play();
+                    }
+                } else if (game.getScreen() instanceof Level2GameScreen) {
+                    music = ((Level2GameScreen)game.getScreen()).getGameMusic();
+                    if (music.isPlaying()) {
+                        music.pause();
+                    } else {
+                        music.play();
+                    }
+                } else if (game.getScreen() instanceof Level3GameScreen) {
+                    music = ((Level3GameScreen) game.getScreen()).getGameMusic();
+                    if (music.isPlaying()) {
+                        music.pause();
+                    } else {
+                        music.play();
+                    }
+                }
             }
         });
 
