@@ -56,14 +56,25 @@ public abstract class Pig {
     }
 
     public void render(SpriteBatch batch) {
-        if (!markedForDestruction) {
-            batch.draw(texture, body.getPosition().x - size / 2, body.getPosition().y - size / 2, size, size);
+        if (body != null && !markedForDestruction) {
+            batch.draw(texture,
+                body.getPosition().x - size / 2, body.getPosition().y - size / 2,
+                size / 2, size / 2,
+                size, size,
+                1, 1,
+                (float) Math.toDegrees(body.getAngle()),
+                0, 0,
+                texture.getWidth(), texture.getHeight(),
+                false, false);
         }
     }
 
     public void dispose() {
         texture.dispose();
-        world.destroyBody(body);
+        if (body != null){
+            world.destroyBody(body);
+            body = null;
+        }
     }
 
     public float getSize() {
@@ -88,4 +99,5 @@ public abstract class Pig {
     public void setHasTakenDamage(boolean hasTakenDamage) {
         this.hasTakenDamage = hasTakenDamage;
     }
+
 }

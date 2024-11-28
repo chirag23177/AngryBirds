@@ -77,11 +77,12 @@ public abstract class Structure {
     }
 
     public boolean containsBody(Body body) {
-       return pigs.stream().anyMatch(pig -> pig.getBody() == body);
+        return pigs.stream().anyMatch(pig -> pig.getBody() == body);
     }
 
     public boolean containsPig(Body body) {
         return pigs.stream().anyMatch(pig -> pig.getBody() == body);
 
     }
+
 }

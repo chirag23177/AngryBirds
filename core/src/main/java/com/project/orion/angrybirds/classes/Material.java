@@ -85,4 +85,5 @@ public abstract class Material {
     public void setHasTakenDamage(boolean hasTakenDamage) {
         this.hasTakenDamage = hasTakenDamage;
     }
+
 }
