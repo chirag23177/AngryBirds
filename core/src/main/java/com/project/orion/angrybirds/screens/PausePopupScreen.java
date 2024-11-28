@@ -61,11 +61,19 @@ public class PausePopupScreen extends Stage {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                ((Level1GameScreen)game.getScreen()).setPausePopupScreen();
-                Gdx.input.setInputProcessor(parentStage);
-
-                ((Level1GameScreen)game.getScreen()).setGameEnded(false);
-
+                if (game.getScreen() instanceof Level1GameScreen) {
+                    ((Level1GameScreen)game.getScreen()).setPausePopupScreen();
+                    Gdx.input.setInputProcessor(parentStage);
+                    ((Level1GameScreen)game.getScreen()).setGameEnded(false);
+                } else if (game.getScreen() instanceof Level2GameScreen) {
+                    ((Level2GameScreen)game.getScreen()).setPausePopupScreen();
+                    Gdx.input.setInputProcessor(parentStage);
+                    ((Level2GameScreen)game.getScreen()).setGameEnded(false);
+                } else if (game.getScreen() instanceof Level3GameScreen) {
+                    ((Level3GameScreen) game.getScreen()).setPausePopupScreen();
+                    Gdx.input.setInputProcessor(parentStage);
+                    ((Level3GameScreen) game.getScreen()).setGameEnded(false);
+                }
                 dispose();
             }
         });

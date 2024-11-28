@@ -84,4 +84,12 @@ public abstract class Structure {
 
     }
 
+    public Body getPrimaryBody() {
+        // Return the main body of the structure if applicable
+        if (!materials.isEmpty()) {
+            return materials.get(0).getBody(); // Example
+        }
+        return null; // Example
+    }
+
 }
