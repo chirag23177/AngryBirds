@@ -50,35 +50,23 @@ public class PausePopupScreen extends Stage {
         saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                game.getScreen().dispose();
+                game.introMusic.play();
                 game.setScreen(new LoadGameScreen(game));
                 dispose();
             }
         });
 
-//        crossButton.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-////                game.setScreen(game.getScreen());
-////                parentStage.getActors().removeValue(PausePopupScreen.this, true);
-////                clear();
-//                dispose();
-////                Gdx.input.setInputProcessor(parentStage);
-//            }
-//        });
-
         crossButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Explicitly set input processor back to the parent stage
+
                 ((Level1GameScreen)game.getScreen()).setPausePopupScreen();
                 Gdx.input.setInputProcessor(parentStage);
 
-                // Reset game state
                 ((Level1GameScreen)game.getScreen()).setGameEnded(false);
 
-                // Dispose of textures to prevent memory leaks
                 dispose();
-//                clear();
             }
         });
 
@@ -107,6 +95,8 @@ public class PausePopupScreen extends Stage {
         levelSelection.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                game.getScreen().dispose();
+                game.introMusic.play();
                 game.setScreen(new LevelSelectionScreen(game));
                 dispose();
             }

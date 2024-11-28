@@ -34,6 +34,7 @@ public class LosePopupScreen extends Stage {
         retryLevel.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                game.getScreen().dispose();
                 if (game.getScreen() instanceof Level1GameScreen) {
                     game.setScreen(new Level1GameScreen(game));
                 } else if (game.getScreen() instanceof Level2GameScreen) {
@@ -48,6 +49,8 @@ public class LosePopupScreen extends Stage {
         levelSelection.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                game.getScreen().dispose();
+                game.introMusic.play();
                 game.setScreen(new LevelSelectionScreen(game));
                 dispose();
             }
