@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -29,7 +30,8 @@ public class Level1GameScreen implements Screen {
     private Box2DDebugRenderer debugRenderer;
     private ShapeRenderer shapeRenderer;
 
-    private RedBird redBird;
+    private List<Bird> birds;
+    private Bird currentBird;
     private Ground ground;
     private Structure1 structure;
 
@@ -54,7 +56,6 @@ public class Level1GameScreen implements Screen {
     private ContactListener contactListener;
     private List<Body> bodiesToDestroy = new ArrayList<>();
 
-    // Win and Lose Popups
     private WinPopupScreen winPopupScreen;
     private LosePopupScreen losePopupScreen;
     private PausePopupScreen pausePopupScreen;
@@ -62,6 +63,9 @@ public class Level1GameScreen implements Screen {
     private float timer;
     private Texture pauseTexture;
     private Button pauseButton;
+
+    private boolean birdCollided = false;
+    private float collisionTime = 0;
 
     public Level1GameScreen(GameLauncher game) {
         this.game = game;
@@ -71,21 +75,36 @@ public class Level1GameScreen implements Screen {
         projectileEquation.setGravity(9.8f);
         world = new World(new Vector2(0, -9.8f), true);
         setupContactListner();
-        timer = 0;
+        createBirds();
+        setCurrentBird();
+    }
+
+    private void createBirds() {
+        birds = new ArrayList<>();
+        birds.add(new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y));
+        birds.add(new BlackBird(world, 100, 150));
+        birds.add(new YellowBird(world, 200, 150));
+    }
+
+    private void setCurrentBird() {
+        if (!birds.isEmpty()) {
+            currentBird = birds.remove(0);
+            currentBird.getBody().setTransform(BIRD_POSITION, 0);
+            currentBird.setStatic();
+        }
     }
 
     @Override
     public void show() {
         game.introMusic.pause();
-
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game_theme.mp3"));
         gameMusic.setLooping(true);
         gameMusic.play();
-
         background = new Texture("game_background.png");
         catapult = new Texture("slingshot.png");
         debugRenderer = new Box2DDebugRenderer();
 
+        // Create ground and structure
         ground = new Ground(world, 130);
         structure = new Structure1(world);
 
@@ -93,21 +112,13 @@ public class Level1GameScreen implements Screen {
         losePopupScreen = new LosePopupScreen(game);
         pausePopupScreen = new PausePopupScreen(game, stage);
 
-        // Creating bird at the specified position
-        redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
-        redBird.setStatic();
-
+        // Touch input handling
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
                 touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
                 touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
-                // Dont remove this
-//                touchPos.x = touchPos.x - 32;
-//                touchPos.y = touchPos.y - 362;
-//                touchPos.x = touchPos.x;
-//                touchPos.y = touchPos.y - 481;
 
                 if (isNearBird(touchPos)) {
                     isDragging = true;
@@ -125,11 +136,6 @@ public class Level1GameScreen implements Screen {
                     touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
                     touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
                     currentTouchPosition.set(touchPos);
-                    // Dont remove this
-//                    currentTouchPosition.x = currentTouchPosition.x - 32;
-//                    currentTouchPosition.y = currentTouchPosition.y - 362;
-//                    currentTouchPosition.x = currentTouchPosition.x;
-//                    currentTouchPosition.y = currentTouchPosition.y - 481;
 
                     if (currentTouchPosition.dst(initialTouchPosition) > MAX_DRAG_DISTANCE) {
                         currentTouchPosition.sub(initialTouchPosition).nor().scl(MAX_DRAG_DISTANCE).add(initialTouchPosition);
@@ -146,22 +152,22 @@ public class Level1GameScreen implements Screen {
                     if (launchVelocity.len() > MAX_DRAG_DISTANCE) {
                         launchVelocity.nor().scl(MAX_DRAG_DISTANCE);
                     }
-                    redBird.setDynamic();
-                    redBird.getBody().setLinearVelocity(launchVelocity.scl(100));
+                    currentBird.setDynamic();
+                    currentBird.getBody().setLinearVelocity(launchVelocity.scl(100));
                     isDragging = false;
                 }
             }
         });
 
-        pauseTexture = new Texture("pause.png");
-        pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
+        Texture pauseTexture = new Texture("pause.png");
+        Button pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
         pauseButton.setPosition(10, game.viewport.getWorldHeight() - pauseButton.getHeight() - 10);
 
         pauseButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameEnded = true;
-                Gdx.input.setInputProcessor(pausePopupScreen);
+                Gdx.input.setInputProcessor(new PausePopupScreen(game, stage));
             }
         });
 
@@ -170,15 +176,15 @@ public class Level1GameScreen implements Screen {
     }
 
     private boolean isNearBird(Vector2 touchPos) {
-        Vector2 birdPos = redBird.getBody().getPosition();
-        System.out.println("birdPos" + birdPos + "touchPos" + touchPos);
+        Vector2 birdPos = currentBird.getBody().getPosition();
         return touchPos.dst(birdPos) < 100f;
     }
 
     @Override
     public void render(float delta) {
         timer += delta;
-        if (!gameEnded){
+
+        if (!gameEnded) {
             if (structure.areAllPigsDestroyed()) {
                 gameEnded = true;
                 Gdx.input.setInputProcessor(winPopupScreen);
@@ -200,7 +206,9 @@ public class Level1GameScreen implements Screen {
             game.batch.begin();
             game.batch.draw(background, 0, 0, worldWidth, worldHeight);
             game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
-            redBird.render(game.batch);
+            if (currentBird != null) {
+                currentBird.render(game.batch);
+            }
             structure.render(game.batch);
             game.batch.end();
 
@@ -212,6 +220,17 @@ public class Level1GameScreen implements Screen {
 
             stage.act(delta);
             stage.draw();
+
+            if (birdCollided) {
+                collisionTime += delta;
+                if (collisionTime >= 4) {
+                    removeCurrentBird();
+                    setCurrentBird();
+                    birdCollided = false;
+                    collisionTime = 0;
+                }
+            }
+
             structure.getMaterials().removeIf(material -> {
                 if (material.isMarkedForDestruction()) {
                     bodiesToDestroy.add(material.getBody());
@@ -236,7 +255,9 @@ public class Level1GameScreen implements Screen {
             game.batch.begin();
             game.batch.draw(background, 0, 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
             game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
-            redBird.render(game.batch);
+            if (currentBird != null) {
+                currentBird.render(game.batch);
+            }
             structure.render(game.batch);
             game.batch.end();
         }
@@ -248,34 +269,31 @@ public class Level1GameScreen implements Screen {
                 losePopupScreen.draw();
             } else {
                 pausePopupScreen.draw();
-//                if (!gameEnded) {
-//                    Gdx.input.setInputProcessor(stage);
-//                }
             }
         }
     }
 
     private boolean allBirdsUsed() {
-        return (timer > 40);
-    }
-
-    public void setGameEnded(boolean gameEnded) {
-        this.gameEnded = gameEnded;
+        return (currentBird == null && birds.isEmpty());
     }
 
     public void setPausePopupScreen() {
         pausePopupScreen = new PausePopupScreen(game, stage);
     }
 
+    public void setGameEnded(boolean gameEnded) {
+        this.gameEnded = gameEnded;
+    }
+
     private void renderTrajectory() {
         projectileEquation.setStartVelocity(launchVelocity);
-        Vector2 birdPosition = new Vector2(200, 300);
+        Vector2 birdPosition = currentBird.getBody().getPosition();
         projectileEquation.setStartPoint(birdPosition);
         projectileEquation.setGravity(-9.8f);
 
         shapeRenderer.setProjectionMatrix(game.viewport.getCamera().combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 0, 0, 1);
+        shapeRenderer.setColor(1, 1, 0, 0.7f);
 
         float timeStep = 0.05f;
         float t = 0f;
@@ -284,11 +302,11 @@ public class Level1GameScreen implements Screen {
         Vector2 previousPoint = new Vector2(birdPosition);
 
         for (int i = 0; i < numSteps; i++) {
-            float x = 200 + projectileEquation.getX(t);
-            float y = 300 + projectileEquation.getY(t);
+            float x = birdPosition.x + projectileEquation.getX(t);
+            float y = birdPosition.y + projectileEquation.getY(t);
 
             if (i > 0) {
-                shapeRenderer.line(previousPoint.x, previousPoint.y,1500, 400);
+                shapeRenderer.line(previousPoint.x, previousPoint.y, x, y);
             }
 
             previousPoint.set(x, y);
@@ -302,36 +320,36 @@ public class Level1GameScreen implements Screen {
         shapeRenderer.end();
     }
 
-    private void setupContactListner(){
+    private void setupContactListner() {
         contactListener = new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
                 Fixture fixtureA = contact.getFixtureA();
                 Fixture fixtureB = contact.getFixtureB();
 
-                // Check if the bird is involved in the collision
-                if (isRedBirdCollision(fixtureA, fixtureB)) {
+                if (isBirdCollision(fixtureA, fixtureB)) {
                     handleBirdCollision(fixtureA, fixtureB);
                 }
 
-                // If the material hits the ground, it takes damage
                 if (isMaterialGroundCollision(fixtureA, fixtureB)) {
                     handleMaterialGroundCollision(fixtureA, fixtureB);
                 }
 
-                // If the pig hits the ground, it takes damage
                 if (isPigGroundCollision(fixtureA, fixtureB)) {
                     handlePigGroundCollision(fixtureA, fixtureB);
                 }
 
-                //If structure hits the pig, it takes damage
-                if (isStructurePigCollision(fixtureA, fixtureB)){
+                if (isStructurePigCollision(fixtureA, fixtureB)) {
                     handleStructurePigCollision(fixtureA, fixtureB);
+                }
+                if (isBirdGroundCollision(fixtureA, fixtureB)) {
+                    birdCollided = true;
                 }
             }
 
             @Override
             public void endContact(Contact contact) {}
+
             @Override
             public void preSolve(Contact contact, Manifold oldManifold) {}
 
@@ -342,55 +360,76 @@ public class Level1GameScreen implements Screen {
         world.setContactListener(contactListener);
     }
 
+    private void removeCurrentBird() {
+        if (currentBird != null && currentBird.getBody() != null) {
+            bodiesToDestroy.add(currentBird.getBody());
+            currentBird.dispose();
+            currentBird = null;
+        }
+    }
+
     private boolean isPigGroundCollision(Fixture fixtureA, Fixture fixtureB) {
-        return (isGround(fixtureA) && isPig(fixtureB)) ||
-            (isGround(fixtureB) && isPig(fixtureA));
+        return (isGround(fixtureA) && isPig(fixtureB)) || (isGround(fixtureB) && isPig(fixtureA));
     }
 
     private boolean isStructurePigCollision(Fixture fixtureA, Fixture fixtureB) {
-        return (isMaterial(fixtureA) && isPig(fixtureB)) ||
-            (isMaterial(fixtureB) && isPig(fixtureA));
+        return (isMaterial(fixtureA) && isPig(fixtureB)) || (isMaterial(fixtureB) && isPig(fixtureA));
     }
 
     private boolean isMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB) {
-        return (isGround(fixtureA) && isMaterial(fixtureB)) ||
-            (isGround(fixtureB) && isMaterial(fixtureA));
+        return (isGround(fixtureA) && isMaterial(fixtureB)) || (isGround(fixtureB) && isMaterial(fixtureA));
+    }
+
+    private boolean isBirdGroundCollision(Fixture fixtureA, Fixture fixtureB) {
+        return (isGround(fixtureA) && isBird(fixtureB)) || (isGround(fixtureB) && isBird(fixtureA));
+    }
+    private boolean isBird(Fixture fixture) {
+        return currentBird != null && fixture.getBody() == currentBird.getBody();
     }
 
     private boolean isGround(Fixture fixture) {
-        return  fixture.getBody() == ground.getGroundBody();
+        return fixture.getBody() == ground.getGroundBody();
     }
 
     private boolean isMaterial(Fixture fixture) {
         return structure.containsBody(fixture.getBody());
     }
 
-    private void handleMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB){
+    private void handleMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB) {
         Body materialBody = isMaterial(fixtureA) ? fixtureA.getBody() : fixtureB.getBody();
         for (Material material : structure.getMaterials()) {
             if (material.getBody() == materialBody && !material.hasTakenDamage()) {
-                if (material.getBody().getPosition().y>ground.getHeight())
+                if (material.getBody().getPosition().y > ground.getHeight()) {
                     material.reduceDurability(10);
-                material.setHasTakenDamage(true);
-                break;
+                    material.setHasTakenDamage(true);
+                    break;
+                }
             }
         }
     }
 
-    private boolean isRedBirdCollision(Fixture fixtureA, Fixture fixtureB) {
-        return (fixtureA.getBody() == redBird.getBody() ||
-            fixtureB.getBody() == redBird.getBody());
+    private boolean isBirdCollision(Fixture fixtureA, Fixture fixtureB) {
+        if(currentBird != null) {
+            return (fixtureA.getBody() == currentBird.getBody() || fixtureB.getBody() == currentBird.getBody());
+        }
+        return false;
     }
 
-    private void handleBirdCollision(Fixture fixtureA, Fixture fixtureB) {
-        Body otherBody = fixtureA.getBody() == redBird.getBody() ?
-            fixtureB.getBody() : fixtureA.getBody();
-        if (isStructureElement(otherBody)) {
+    private void handleBirdCollision(Fixture fixtureA, Fixture fixtureB){
+        Body otherBody = fixtureA.getBody() == currentBird.getBody() ? fixtureB.getBody() : fixtureA.getBody();
+        if (isStructureElement(otherBody)){
             onBirdHitStructure(otherBody);
         } else if (isPig(otherBody)) {
             onBirdHitPig(otherBody);
-
         }
+    }
+
+    private boolean isPig(Body body) {
+        return structure.containsPig(body);
+    }
+
+    private boolean isPig(Fixture fixture) {
+        return structure.containsPig(fixture.getBody());
     }
 
     private void handlePigGroundCollision(Fixture fixtureA, Fixture fixtureB) {
@@ -413,44 +452,42 @@ public class Level1GameScreen implements Screen {
             if (pig.getBody() == pigBody && !pig.hasTakenDamage()) {
                 pig.reduceHealth(10);
                 pig.setHasTakenDamage(true);
+
                 break;
             }
         }
     }
 
-    private boolean isStructureElement(Body body) {
+    private boolean isStructureElement(Body body){
         Body primaryBody = structure.getPrimaryBody();
         return (primaryBody != null && body == primaryBody) ||
             structure.containsBody(body);
     }
 
-    private boolean isPig(Body body) {
-        return structure.containsPig(body);
-    }
-
-    private boolean isPig(Fixture fixture) {
-        return structure.containsPig(fixture.getBody());
-    }
-
-    private void onBirdHitStructure(Body body) {
-        System.out.println("Bird hit the structure!");
-        for (Material material : structure.getMaterials()) {
-            if (material.getBody() == body) {
-                material.reduceDurability(redBird.getImpact());
+    private void onBirdHitStructure(Body body){
+        System.out.println("Bird hit structure");
+        for (Material material : structure.getMaterials()){
+            if (material.getBody() == body){
+                material.reduceDurability(currentBird.getImpact());
+                currentBird.hitTarget();
+                birdCollided = true;
                 break;
             }
         }
     }
 
     private void onBirdHitPig(Body body) {
-        System.out.println("Bird hit the pig!");
+        System.out.println("Bird hit pig");
         for (Pig pig : structure.getPigs()) {
             if (pig.getBody() == body) {
-                pig.reduceHealth(redBird.getImpact());
+                pig.reduceHealth(currentBird.getImpact());
+                currentBird.hitTarget();
+                birdCollided = true;
                 break;
             }
         }
     }
+
 
     @Override
     public void resize(int width, int height) {
@@ -471,10 +508,11 @@ public class Level1GameScreen implements Screen {
         background.dispose();
         catapult.dispose();
         gameMusic.dispose();
-        redBird.dispose();
+        for (Bird bird : birds) {
+            bird.dispose();
+        }
         world.dispose();
         debugRenderer.dispose();
         shapeRenderer.dispose();
-        gameMusic.dispose();
     }
 }

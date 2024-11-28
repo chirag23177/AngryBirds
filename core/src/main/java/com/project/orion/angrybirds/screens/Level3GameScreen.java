@@ -29,6 +29,7 @@ public class Level3GameScreen implements Screen {
     private World world;
     private Box2DDebugRenderer debugRenderer;
     private ShapeRenderer shapeRenderer;
+
     private List<Bird> birds;
     private Bird currentBird;
     private Ground ground;
@@ -54,10 +55,7 @@ public class Level3GameScreen implements Screen {
     // Collision
     private ContactListener contactListener;
     private List<Body> bodiesToDestroy = new ArrayList<>();
-    private boolean birdCollided = false;
-    private float collisionTime = 0;
 
-    // Win and Lose Popups
     private WinPopupScreen winPopupScreen;
     private LosePopupScreen losePopupScreen;
     private PausePopupScreen pausePopupScreen;
@@ -65,6 +63,9 @@ public class Level3GameScreen implements Screen {
     private float timer;
     private Texture pauseTexture;
     private Button pauseButton;
+
+    private boolean birdCollided = false;
+    private float collisionTime = 0;
 
     public Level3GameScreen(GameLauncher game) {
         this.game = game;
@@ -110,10 +111,6 @@ public class Level3GameScreen implements Screen {
         winPopupScreen = new WinPopupScreen(game);
         losePopupScreen = new LosePopupScreen(game);
         pausePopupScreen = new PausePopupScreen(game, stage);
-
-        // Create bird at the specified position
-        redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
-        redBird.setStatic(); // Keep bird stationary until launched
 
         // Touch input handling
         stage.addListener(new InputListener() {
@@ -162,15 +159,15 @@ public class Level3GameScreen implements Screen {
             }
         });
 
-        pauseTexture = new Texture("pause.png");
-        pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
+        Texture pauseTexture = new Texture("pause.png");
+        Button pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
         pauseButton.setPosition(10, game.viewport.getWorldHeight() - pauseButton.getHeight() - 10);
 
         pauseButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameEnded = true;
-                Gdx.input.setInputProcessor(pausePopupScreen);
+                Gdx.input.setInputProcessor(new PausePopupScreen(game, stage));
             }
         });
 
@@ -186,7 +183,8 @@ public class Level3GameScreen implements Screen {
     @Override
     public void render(float delta) {
         timer += delta;
-        if (!gameEnded){
+
+        if (!gameEnded) {
             if (structure.areAllPigsDestroyed()) {
                 gameEnded = true;
                 Gdx.input.setInputProcessor(winPopupScreen);
@@ -199,21 +197,6 @@ public class Level3GameScreen implements Screen {
 
         game.viewport.apply();
         game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
-        float worldWidth = game.viewport.getWorldWidth();
-        float worldHeight = game.viewport.getWorldHeight();
-
-        game.batch.begin();
-        game.batch.draw(background, 0, 0, worldWidth, worldHeight);
-        game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
-        if (currentBird != null) {
-            currentBird.render(game.batch);
-        }
-        structure.render(game.batch);
-        game.batch.end();
-
-        if (isDragging) {
-            renderTrajectory();
-        }
 
         if (!gameEnded) {
             world.step(1 / 60f, 6, 2);
@@ -223,24 +206,12 @@ public class Level3GameScreen implements Screen {
             game.batch.begin();
             game.batch.draw(background, 0, 0, worldWidth, worldHeight);
             game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
-            redBird.render(game.batch);
+            if (currentBird != null) {
+                currentBird.render(game.batch);
+            }
             structure.render(game.batch);
             game.batch.end();
 
-        if (birdCollided) {
-            collisionTime += delta;
-            if (collisionTime >= 4) {
-                removeCurrentBird();
-                setCurrentBird();
-                birdCollided = false;
-                collisionTime = 0;
-            }
-        }
-
-        structure.getMaterials().removeIf(material -> {
-            if (material.isMarkedForDestruction()) {
-                bodiesToDestroy.add(material.getBody());
-                return true;
             if (isDragging) {
                 renderTrajectory();
             }
@@ -249,6 +220,16 @@ public class Level3GameScreen implements Screen {
 
             stage.act(delta);
             stage.draw();
+
+            if (birdCollided) {
+                collisionTime += delta;
+                if (collisionTime >= 4) {
+                    removeCurrentBird();
+                    setCurrentBird();
+                    birdCollided = false;
+                    collisionTime = 0;
+                }
+            }
 
             structure.getMaterials().removeIf(material -> {
                 if (material.isMarkedForDestruction()) {
@@ -274,7 +255,9 @@ public class Level3GameScreen implements Screen {
             game.batch.begin();
             game.batch.draw(background, 0, 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
             game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
-            redBird.render(game.batch);
+            if (currentBird != null) {
+                currentBird.render(game.batch);
+            }
             structure.render(game.batch);
             game.batch.end();
         }
@@ -291,7 +274,15 @@ public class Level3GameScreen implements Screen {
     }
 
     private boolean allBirdsUsed() {
-        return (timer > 40);
+        return (currentBird == null && birds.isEmpty());
+    }
+
+    public void setPausePopupScreen() {
+        pausePopupScreen = new PausePopupScreen(game, stage);
+    }
+
+    public void setGameEnded(boolean gameEnded) {
+        this.gameEnded = gameEnded;
     }
 
     private void renderTrajectory() {
@@ -351,6 +342,9 @@ public class Level3GameScreen implements Screen {
                 if (isStructurePigCollision(fixtureA, fixtureB)) {
                     handleStructurePigCollision(fixtureA, fixtureB);
                 }
+                if (isBirdGroundCollision(fixtureA, fixtureB)) {
+                    birdCollided = true;
+                }
             }
 
             @Override
@@ -384,6 +378,13 @@ public class Level3GameScreen implements Screen {
 
     private boolean isMaterialGroundCollision(Fixture fixtureA, Fixture fixtureB) {
         return (isGround(fixtureA) && isMaterial(fixtureB)) || (isGround(fixtureB) && isMaterial(fixtureA));
+    }
+
+    private boolean isBirdGroundCollision(Fixture fixtureA, Fixture fixtureB) {
+        return (isGround(fixtureA) && isBird(fixtureB)) || (isGround(fixtureB) && isBird(fixtureA));
+    }
+    private boolean isBird(Fixture fixture) {
+        return currentBird != null && fixture.getBody() == currentBird.getBody();
     }
 
     private boolean isGround(Fixture fixture) {
@@ -513,6 +514,5 @@ public class Level3GameScreen implements Screen {
         world.dispose();
         debugRenderer.dispose();
         shapeRenderer.dispose();
-        gameMusic.dispose();
     }
 }

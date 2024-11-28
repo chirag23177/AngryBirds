@@ -13,13 +13,6 @@ public class Structure1 extends Structure {
         materials.add(new GlassBox(world, 1460, 402, 150, 150));
         pigs.add(new MediumPig(world, 1460, 510));
     }
-    public Body getPrimaryBody() {
-        // Return the main body of the structure if applicable
-        if (!materials.isEmpty()) {
-            return materials.get(0).getBody();
-        }
-        return null; // Example
-    }
 
     public boolean containsBody(Body body) {
         // Check if the given body is part of this structure
