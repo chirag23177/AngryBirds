@@ -285,6 +285,10 @@ public class Level2GameScreen implements Screen {
         this.gameEnded = gameEnded;
     }
 
+    public Music getGameMusic() {
+        return gameMusic;
+    }
+
     private void renderTrajectory() {
         projectileEquation.setStartVelocity(launchVelocity);
         Vector2 birdPosition = currentBird.getBody().getPosition();
