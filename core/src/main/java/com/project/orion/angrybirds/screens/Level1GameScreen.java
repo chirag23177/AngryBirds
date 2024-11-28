@@ -86,7 +86,6 @@ public class Level1GameScreen implements Screen {
         catapult = new Texture("slingshot.png");
         debugRenderer = new Box2DDebugRenderer();
 
-        // Create ground and structure
         ground = new Ground(world, 130);
         structure = new Structure1(world);
 
@@ -94,15 +93,13 @@ public class Level1GameScreen implements Screen {
         losePopupScreen = new LosePopupScreen(game);
         pausePopupScreen = new PausePopupScreen(game, stage);
 
-        // Create bird at the specified position
+        // Creating bird at the specified position
         redBird = new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y);
-        redBird.setStatic(); // Keep bird stationary until launched
+        redBird.setStatic();
 
-        // Touch input handling
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-//                Vector2 touchPos = new Vector2(x, y);
                 Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
                 touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
                 touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
@@ -124,7 +121,6 @@ public class Level1GameScreen implements Screen {
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
-//                    Vector2 touchPos = new Vector2(x, y);
                     Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
                     touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
                     touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
@@ -153,9 +149,6 @@ public class Level1GameScreen implements Screen {
                     redBird.setDynamic();
                     redBird.getBody().setLinearVelocity(launchVelocity.scl(100));
                     isDragging = false;
-
-//                    projectileEquation.setStartVelocity(launchVelocity);
-//                    projectileEquation.setStartPoint(redBird.getBody().getPosition());
                 }
             }
         });
@@ -275,29 +268,25 @@ public class Level1GameScreen implements Screen {
     }
 
     private void renderTrajectory() {
-        // Ensure projectile equation is set up correctly
         projectileEquation.setStartVelocity(launchVelocity);
-//        Vector2 birdPosition = redBird.getBody().getPosition();
         Vector2 birdPosition = new Vector2(200, 300);
         projectileEquation.setStartPoint(birdPosition);
         projectileEquation.setGravity(-9.8f);
 
         shapeRenderer.setProjectionMatrix(game.viewport.getCamera().combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 0, 0.7f); // Semi-transparent yellow
+        shapeRenderer.setColor(1, 0, 0, 1);
 
-        float timeStep = 0.05f;  // Smaller time step for smoother curve
+        float timeStep = 0.05f;
         float t = 0f;
-        int numSteps = 150;  // More steps for a longer, smoother trajectory
+        int numSteps = 150;
 
         Vector2 previousPoint = new Vector2(birdPosition);
 
         for (int i = 0; i < numSteps; i++) {
-            // Calculate trajectory point
             float x = 200 + projectileEquation.getX(t);
             float y = 300 + projectileEquation.getY(t);
 
-            // Draw line segments instead of circles for smoother trajectory
             if (i > 0) {
                 shapeRenderer.line(previousPoint.x, previousPoint.y,1500, 400);
             }
@@ -305,7 +294,6 @@ public class Level1GameScreen implements Screen {
             previousPoint.set(x, y);
             t += timeStep;
 
-            // Optional: Stop drawing if trajectory goes below ground level
             if (y < ground.getHeight()) {
                 break;
             }
@@ -343,22 +331,14 @@ public class Level1GameScreen implements Screen {
             }
 
             @Override
-            public void endContact(Contact contact) {
-                // Not needed for this implementation
-            }
+            public void endContact(Contact contact) {}
+            @Override
+            public void preSolve(Contact contact, Manifold oldManifold) {}
 
             @Override
-            public void preSolve(Contact contact, Manifold oldManifold) {
-                // Not needed for this implementation
-            }
-
-            @Override
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-                // Can be used to check collision intensity if needed
-            }
+            public void postSolve(Contact contact, ContactImpulse impulse) {}
         };
 
-        // Add the contact listener to the world
         world.setContactListener(contactListener);
     }
 
@@ -390,7 +370,7 @@ public class Level1GameScreen implements Screen {
         for (Material material : structure.getMaterials()) {
             if (material.getBody() == materialBody && !material.hasTakenDamage()) {
                 if (material.getBody().getPosition().y>ground.getHeight())
-                material.reduceDurability(10);
+                    material.reduceDurability(10);
                 material.setHasTakenDamage(true);
                 break;
             }
@@ -417,7 +397,6 @@ public class Level1GameScreen implements Screen {
         Body pigBody = isPig(fixtureA) ? fixtureA.getBody() : fixtureB.getBody();
         for (Pig pig : structure.getPigs()) {
             if (pig.getBody() == pigBody && !pig.hasTakenDamage()) {
-                // Check if the pig is directly on the ground
                 if (pig.getBody().getPosition().y > ground.getHeight()) {
                     pig.reduceHealth(10);
                     pig.setHasTakenDamage(true);
@@ -454,7 +433,6 @@ public class Level1GameScreen implements Screen {
     }
 
     private void onBirdHitStructure(Body body) {
-        // Add any special effects or scoring logic here
         System.out.println("Bird hit the structure!");
         for (Material material : structure.getMaterials()) {
             if (material.getBody() == body) {
@@ -473,9 +451,6 @@ public class Level1GameScreen implements Screen {
             }
         }
     }
-
-
-
 
     @Override
     public void resize(int width, int height) {
