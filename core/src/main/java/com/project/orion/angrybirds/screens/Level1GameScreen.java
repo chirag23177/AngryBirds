@@ -110,6 +110,7 @@ public class Level1GameScreen implements Screen {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (birdLaunched){
                     return false;
+
                 }
                 Vector2 touchPos = (new Vector2(x, y));
 
@@ -320,7 +321,7 @@ public class Level1GameScreen implements Screen {
                 trajectoryTexture.getWidth() * scale,
                 trajectoryTexture.getHeight() * scale
             );
-          
+
             if (currentPos.y < ground.getHeight()) {
                 break;
             }
