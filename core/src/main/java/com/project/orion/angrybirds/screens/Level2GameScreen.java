@@ -5,7 +5,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -27,7 +26,7 @@ public class Level2GameScreen implements Screen {
     private Texture catapult;
     private Music gameMusic;
     private World world;
-    private Box2DDebugRenderer debugRenderer;
+//    private Box2DDebugRenderer debugRenderer;
     private ShapeRenderer shapeRenderer;
 
     private List<Bird> birds;
@@ -49,12 +48,9 @@ public class Level2GameScreen implements Screen {
     private static final Vector2 BIRD_POSITION = new Vector2(200f, 300);
     private static final Vector2 GRAB_REGION_CENTRE = new Vector2(200f, 300f);
 
-    //Projectile equation
-    private ProjectileEquation projectileEquation;
-
     // Collision
     private ContactListener contactListener;
-    private List<Body> bodiesToDestroy = new ArrayList<>();
+    private List<Body> destroyBody = new ArrayList<>();
 
     private WinPopupScreen winPopupScreen;
     private LosePopupScreen losePopupScreen;
@@ -67,12 +63,12 @@ public class Level2GameScreen implements Screen {
     private boolean birdCollided = false;
     private float collisionTime = 0;
 
+    private boolean birdLaunched = false;
+
     public Level2GameScreen(GameLauncher game) {
         this.game = game;
         stage = new Stage(game.viewport, game.batch);
         shapeRenderer = new ShapeRenderer();
-        projectileEquation = new ProjectileEquation();
-        projectileEquation.setGravity(9.8f);
         world = new World(new Vector2(0, -9.8f), true);
         setupContactListner();
         createBirds();
@@ -82,8 +78,8 @@ public class Level2GameScreen implements Screen {
     private void createBirds() {
         birds = new ArrayList<>();
         birds.add(new RedBird(world, BIRD_POSITION.x, BIRD_POSITION.y));
-        birds.add(new BlackBird(world, 100, 150));
-        birds.add(new YellowBird(world, 200, 150));
+        birds.add(new BlackBird(world, 50, 175));
+        birds.add(new YellowBird(world, 150, 175));
     }
 
     private void setCurrentBird() {
@@ -91,18 +87,20 @@ public class Level2GameScreen implements Screen {
             currentBird = birds.remove(0);
             currentBird.getBody().setTransform(BIRD_POSITION, 0);
             currentBird.setStatic();
+            birdLaunched = false;
         }
     }
 
     @Override
     public void show() {
+
         game.introMusic.pause();
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("game_theme.mp3"));
         gameMusic.setLooping(true);
         gameMusic.play();
         background = new Texture("game_background.png");
         catapult = new Texture("slingshot.png");
-        debugRenderer = new Box2DDebugRenderer();
+//        debugRenderer = new Box2DDebugRenderer();
 
         // Create ground and structure
         ground = new Ground(world, 130);
@@ -116,9 +114,10 @@ public class Level2GameScreen implements Screen {
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
-                touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
-                touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
+                if (birdLaunched){
+                    return false;
+                }
+                Vector2 touchPos = (new Vector2(x, y));
 
                 if (isNearBird(touchPos)) {
                     isDragging = true;
@@ -132,14 +131,13 @@ public class Level2GameScreen implements Screen {
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
-                    Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
-                    touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
-                    touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
+                    Vector2 touchPos = (new Vector2(x, y));
                     currentTouchPosition.set(touchPos);
 
                     if (currentTouchPosition.dst(initialTouchPosition) > MAX_DRAG_DISTANCE) {
                         currentTouchPosition.sub(initialTouchPosition).nor().scl(MAX_DRAG_DISTANCE).add(initialTouchPosition);
                     }
+
                 }
             }
 
@@ -155,6 +153,7 @@ public class Level2GameScreen implements Screen {
                     currentBird.setDynamic();
                     currentBird.getBody().setLinearVelocity(launchVelocity.scl(100));
                     isDragging = false;
+                    birdLaunched = true;
                 }
             }
         });
@@ -206,7 +205,10 @@ public class Level2GameScreen implements Screen {
             game.batch.begin();
             game.batch.draw(background, 0, 0, worldWidth, worldHeight);
             game.batch.draw(catapult, 150, 100, catapult.getWidth(), catapult.getHeight());
-            if (currentBird != null) {
+            for (Bird bird : birds) {
+                bird.render(game.batch);
+            }
+            if (currentBird != null && !birds.contains(currentBird)) {
                 currentBird.render(game.batch);
             }
             structure.render(game.batch);
@@ -216,7 +218,7 @@ public class Level2GameScreen implements Screen {
                 renderTrajectory();
             }
 
-            debugRenderer.render(world, game.viewport.getCamera().combined);
+//            debugRenderer.render(world, game.viewport.getCamera().combined);
 
             stage.act(delta);
             stage.draw();
@@ -233,7 +235,7 @@ public class Level2GameScreen implements Screen {
 
             structure.getMaterials().removeIf(material -> {
                 if (material.isMarkedForDestruction()) {
-                    bodiesToDestroy.add(material.getBody());
+                    destroyBody.add(material.getBody());
                     return true;
                 }
                 return false;
@@ -241,16 +243,16 @@ public class Level2GameScreen implements Screen {
 
             structure.getPigs().removeIf(pig -> {
                 if (pig.isMarkedForDestruction()) {
-                    bodiesToDestroy.add(pig.getBody());
+                    destroyBody.add(pig.getBody());
                     return true;
                 }
                 return false;
             });
 
-            for (Body body : bodiesToDestroy) {
+            for (Body body : destroyBody) {
                 world.destroyBody(body);
             }
-            bodiesToDestroy.clear();
+            destroyBody.clear();
         } else {
             game.batch.begin();
             game.batch.draw(background, 0, 0, game.viewport.getWorldWidth(), game.viewport.getWorldHeight());
@@ -290,39 +292,44 @@ public class Level2GameScreen implements Screen {
     }
 
     private void renderTrajectory() {
-        projectileEquation.setStartVelocity(launchVelocity);
-        Vector2 birdPosition = currentBird.getBody().getPosition();
-        projectileEquation.setStartPoint(birdPosition);
-        projectileEquation.setGravity(-9.8f);
+        Texture trajectoryTexture = new Texture("circle.png");
+        Vector2 velocity = new Vector2(currentTouchPosition).sub(initialTouchPosition).scl(LAUNCH_POWER_MULTIPLIER);
+        velocity.x = -velocity.x;
+        velocity.y = -velocity.y;
+        if (velocity.len() > MAX_DRAG_DISTANCE) {
+            velocity.nor().scl(MAX_DRAG_DISTANCE);
+        }
+        float gravity = 27f;
+        float timeStep = 0.5f;
+        float maxTrajectoryTime = 10f;
+        Vector2 startPos = new Vector2(BIRD_POSITION);
+        Vector2 currentPos = new Vector2(startPos);
+        Vector2 currentVelocity = new Vector2(velocity);
 
-        shapeRenderer.setProjectionMatrix(game.viewport.getCamera().combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 0, 0.7f);
+        game.batch.begin();
+        float initialScale = 2f;
+        float minScale = 0.5f;
 
-        float timeStep = 0.05f;
-        float t = 0f;
-        int numSteps = 150;
-
-        Vector2 previousPoint = new Vector2(birdPosition);
-
-        for (int i = 0; i < numSteps; i++) {
-            float x = birdPosition.x + projectileEquation.getX(t);
-            float y = birdPosition.y + projectileEquation.getY(t);
-
-            if (i > 0) {
-                shapeRenderer.line(previousPoint.x, previousPoint.y, x, y);
-            }
-
-            previousPoint.set(x, y);
-            t += timeStep;
-
-            if (y < ground.getHeight()) {
+        for (float time = 0; time < maxTrajectoryTime; time += timeStep) {
+            currentPos.x = startPos.x + currentVelocity.x * time;
+            currentPos.y = startPos.y + currentVelocity.y * time - (0.5f * gravity * time * time);
+            float distanceFromStart = currentPos.dst(startPos);
+            float scale = Math.max(initialScale - (distanceFromStart / (MAX_DRAG_DISTANCE * 4)), minScale);
+            game.batch.draw(
+                trajectoryTexture,
+                currentPos.x - (trajectoryTexture.getWidth() * scale / 2),
+                currentPos.y - (trajectoryTexture.getHeight() * scale / 2),
+                trajectoryTexture.getWidth() * scale,
+                trajectoryTexture.getHeight() * scale
+            );
+            if (currentPos.y < ground.getHeight()) {
                 break;
             }
         }
-
-        shapeRenderer.end();
+        game.batch.end();
+        trajectoryTexture.dispose();
     }
+
 
     private void setupContactListner() {
         contactListener = new ContactListener() {
@@ -352,21 +359,26 @@ public class Level2GameScreen implements Screen {
             }
 
             @Override
-            public void endContact(Contact contact) {}
+            public void endContact(Contact contact) {
+
+            }
 
             @Override
-            public void preSolve(Contact contact, Manifold oldManifold) {}
+            public void preSolve(Contact contact, Manifold manifold) {
+
+            }
 
             @Override
-            public void postSolve(Contact contact, ContactImpulse impulse) {}
+            public void postSolve(Contact contact, ContactImpulse contactImpulse) {
+
+            }
         };
-
         world.setContactListener(contactListener);
     }
 
     private void removeCurrentBird() {
         if (currentBird != null && currentBird.getBody() != null) {
-            bodiesToDestroy.add(currentBird.getBody());
+            destroyBody.add(currentBird.getBody());
             currentBird.dispose();
             currentBird = null;
         }
@@ -456,7 +468,6 @@ public class Level2GameScreen implements Screen {
             if (pig.getBody() == pigBody && !pig.hasTakenDamage()) {
                 pig.reduceHealth(10);
                 pig.setHasTakenDamage(true);
-
                 break;
             }
         }
@@ -516,7 +527,7 @@ public class Level2GameScreen implements Screen {
             bird.dispose();
         }
         world.dispose();
-        debugRenderer.dispose();
+//        debugRenderer.dispose();
         shapeRenderer.dispose();
     }
 }

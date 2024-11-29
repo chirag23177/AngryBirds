@@ -165,8 +165,6 @@ public class PausePopupScreen extends Stage {
         if (cross != null) cross.dispose();
         if (save != null) save.dispose();
         if (saveHover != null) saveHover.dispose();
-
-        // Clear the stage
         clear();
     }
 }

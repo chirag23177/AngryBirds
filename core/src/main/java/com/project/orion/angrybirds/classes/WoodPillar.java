@@ -1,13 +1,3 @@
-//package com.project.orion.angrybirds.classes;
-//
-//public class Wood extends Material{
-//    public Wood() {
-//        this.durability = 20;
-//        this.shape = "Pillar";
-//    }
-//    public void brea() {};
-//}
-
 package com.project.orion.angrybirds.classes;
 
 import com.badlogic.gdx.physics.box2d.*;
@@ -38,9 +28,5 @@ public class WoodPillar extends Material {
 
         body.createFixture(fixtureDef);
         pillarShape.dispose();
-    }
-
-    public void breakPillar() {
-        // Logic to handle breaking of the wood pillar
     }
 }
