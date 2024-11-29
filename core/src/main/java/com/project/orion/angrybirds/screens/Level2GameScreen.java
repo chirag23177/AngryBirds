@@ -60,7 +60,6 @@ public class Level2GameScreen implements Screen {
     private LosePopupScreen losePopupScreen;
     private PausePopupScreen pausePopupScreen;
     private boolean gameEnded;
-    private float timer;
     private Texture pauseTexture;
     private Button pauseButton;
 
@@ -116,9 +115,7 @@ public class Level2GameScreen implements Screen {
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
-                touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
-                touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
+                Vector2 touchPos = new Vector2(x, y);
 
                 if (isNearBird(touchPos)) {
                     isDragging = true;
@@ -132,9 +129,7 @@ public class Level2GameScreen implements Screen {
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
-                    Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
-                    touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
-                    touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
+                    Vector2 touchPos = new Vector2(x, y);
                     currentTouchPosition.set(touchPos);
 
                     if (currentTouchPosition.dst(initialTouchPosition) > MAX_DRAG_DISTANCE) {
@@ -159,8 +154,8 @@ public class Level2GameScreen implements Screen {
             }
         });
 
-        Texture pauseTexture = new Texture("pause.png");
-        Button pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
+        pauseTexture = new Texture("pause.png");
+        pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
         pauseButton.setPosition(10, game.viewport.getWorldHeight() - pauseButton.getHeight() - 10);
 
         pauseButton.addListener(new ClickListener() {
@@ -182,7 +177,6 @@ public class Level2GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        timer += delta;
 
         if (!gameEnded) {
             if (structure.areAllPigsDestroyed()) {
@@ -290,38 +284,50 @@ public class Level2GameScreen implements Screen {
     }
 
     private void renderTrajectory() {
-        projectileEquation.setStartVelocity(launchVelocity);
-        Vector2 birdPosition = currentBird.getBody().getPosition();
-        projectileEquation.setStartPoint(birdPosition);
-        projectileEquation.setGravity(-9.8f);
+        Texture trajectoryTexture = new Texture("circle.png");
 
-        shapeRenderer.setProjectionMatrix(game.viewport.getCamera().combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 0, 0.7f);
+        Vector2 velocity = new Vector2(currentTouchPosition).sub(initialTouchPosition).scl(LAUNCH_POWER_MULTIPLIER);
+        velocity.x = -velocity.x;
+        velocity.y = -velocity.y;
 
-        float timeStep = 0.05f;
-        float t = 0f;
-        int numSteps = 150;
+        if (velocity.len() > MAX_DRAG_DISTANCE) {
+            velocity.nor().scl(MAX_DRAG_DISTANCE);
+        }
 
-        Vector2 previousPoint = new Vector2(birdPosition);
+        float gravity = 27f;
+        float timeStep = 0.3f;
+        float maxTrajectoryTime = 10f;
 
-        for (int i = 0; i < numSteps; i++) {
-            float x = birdPosition.x + projectileEquation.getX(t);
-            float y = birdPosition.y + projectileEquation.getY(t);
+        Vector2 startPos = new Vector2(BIRD_POSITION);
+        Vector2 currentPos = new Vector2(startPos);
+        Vector2 currentVelocity = new Vector2(velocity);
 
-            if (i > 0) {
-                shapeRenderer.line(previousPoint.x, previousPoint.y, x, y);
-            }
+        game.batch.begin();
+        float initialScale = 0.9f;
+        float minScale = 0.3f;
 
-            previousPoint.set(x, y);
-            t += timeStep;
+        for (float time = timeStep; time < maxTrajectoryTime; time += timeStep) {
+            currentPos.x = startPos.x + currentVelocity.x * time;
+            currentPos.y = startPos.y + currentVelocity.y * time - (0.5f * gravity * time * time);
 
-            if (y < ground.getHeight()) {
+            float distanceFromStart = currentPos.dst(startPos);
+            float scale = Math.max(initialScale - (distanceFromStart / (MAX_DRAG_DISTANCE * 4)), minScale);
+
+            game.batch.draw(
+                trajectoryTexture,
+                currentPos.x - (trajectoryTexture.getWidth() * scale / 2),
+                currentPos.y - (trajectoryTexture.getHeight() * scale / 2),
+                trajectoryTexture.getWidth() * scale,
+                trajectoryTexture.getHeight() * scale
+            );
+
+            if (currentPos.y < ground.getHeight()) {
                 break;
             }
         }
+        game.batch.end();
 
-        shapeRenderer.end();
+        trajectoryTexture.dispose();
     }
 
     private void setupContactListner() {

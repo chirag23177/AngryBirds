@@ -5,7 +5,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -37,22 +36,18 @@ public class Level1GameScreen implements Screen {
 
     private final Stage stage;
 
-    // Slingshot mechanics
     private boolean isDragging = false;
     private Vector2 initialTouchPosition = new Vector2();
     private Vector2 currentTouchPosition = new Vector2();
     private Vector2 launchVelocity = new Vector2();
 
-    // Slingshot constraints
     private static final float MAX_DRAG_DISTANCE = 200f;
     private static final float LAUNCH_POWER_MULTIPLIER = 15f;
     private static final Vector2 BIRD_POSITION = new Vector2(200f, 300);
     private static final Vector2 GRAB_REGION_CENTRE = new Vector2(200f, 300f);
 
-    //Projectile equation
     private ProjectileEquation projectileEquation;
 
-    // Collision
     private ContactListener contactListener;
     private List<Body> bodiesToDestroy = new ArrayList<>();
 
@@ -60,7 +55,6 @@ public class Level1GameScreen implements Screen {
     private LosePopupScreen losePopupScreen;
     private PausePopupScreen pausePopupScreen;
     private boolean gameEnded;
-    private float timer;
     private Texture pauseTexture;
     private Button pauseButton;
 
@@ -104,7 +98,6 @@ public class Level1GameScreen implements Screen {
         catapult = new Texture("slingshot.png");
         debugRenderer = new Box2DDebugRenderer();
 
-        // Create ground and structure
         ground = new Ground(world, 130);
         structure = new Structure1(world);
 
@@ -112,7 +105,6 @@ public class Level1GameScreen implements Screen {
         losePopupScreen = new LosePopupScreen(game);
         pausePopupScreen = new PausePopupScreen(game, stage);
 
-        // Touch input handling
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -155,8 +147,8 @@ public class Level1GameScreen implements Screen {
             }
         });
 
-        Texture pauseTexture = new Texture("pause.png");
-        Button pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
+        pauseTexture = new Texture("pause.png");
+        pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
         pauseButton.setPosition(10, game.viewport.getWorldHeight() - pauseButton.getHeight() - 10);
 
         pauseButton.addListener(new ClickListener() {
@@ -178,8 +170,6 @@ public class Level1GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        timer += delta;
-
         if (!gameEnded) {
             if (structure.areAllPigsDestroyed()) {
                 gameEnded = true;
@@ -286,46 +276,35 @@ public class Level1GameScreen implements Screen {
     }
 
     private void renderTrajectory() {
-        // Create texture for trajectory points
         Texture trajectoryTexture = new Texture("circle.png");
 
-        // Calculate launch velocity
         Vector2 velocity = new Vector2(currentTouchPosition).sub(initialTouchPosition).scl(LAUNCH_POWER_MULTIPLIER);
         velocity.x = -velocity.x;
         velocity.y = -velocity.y;
 
-        // Limit velocity if it exceeds max drag distance
         if (velocity.len() > MAX_DRAG_DISTANCE) {
             velocity.nor().scl(MAX_DRAG_DISTANCE);
         }
 
-        // Physics simulation parameters
-        float gravity = 27f; // Using the existing gravity from projectile equation
-        float timeStep = 0.5f;
-        float maxTrajectoryTime = 10f; // Limit trajectory prediction time
+        float gravity = 27f;
+        float timeStep = 0.3f;
+        float maxTrajectoryTime = 10f;
 
-        // Initial conditions
-        Vector2 startPos = new Vector2(BIRD_POSITION); // Use the predefined launch position
+        Vector2 startPos = new Vector2(BIRD_POSITION);
         Vector2 currentPos = new Vector2(startPos);
         Vector2 currentVelocity = new Vector2(velocity);
 
-        // Trajectory rendering
         game.batch.begin();
-        float initialScale = 2f;
-        float minScale = 0.5f;
+        float initialScale = 0.9f;
+        float minScale = 0.3f;
 
-        for (float time = 0; time < maxTrajectoryTime; time += timeStep) {
-            // Precise projectile motion equations
-            // x = x0 + vx * t
-            // y = y0 + vy * t - (1/2) * g * t^2
+        for (float time = timeStep; time < maxTrajectoryTime; time += timeStep) {
             currentPos.x = startPos.x + currentVelocity.x * time;
             currentPos.y = startPos.y + currentVelocity.y * time - (0.5f * gravity * time * time);
 
-            // Calculate scale (decrease size with distance)
             float distanceFromStart = currentPos.dst(startPos);
             float scale = Math.max(initialScale - (distanceFromStart / (MAX_DRAG_DISTANCE * 4)), minScale);
 
-            // Render trajectory point
             game.batch.draw(
                 trajectoryTexture,
                 currentPos.x - (trajectoryTexture.getWidth() * scale / 2),
@@ -334,14 +313,12 @@ public class Level1GameScreen implements Screen {
                 trajectoryTexture.getHeight() * scale
             );
 
-            // Optional: Break if bird would go below ground
             if (currentPos.y < ground.getHeight()) {
                 break;
             }
         }
         game.batch.end();
 
-        // Dispose of texture to prevent memory leaks
         trajectoryTexture.dispose();
     }
 

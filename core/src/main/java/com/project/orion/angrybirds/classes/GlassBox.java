@@ -16,7 +16,7 @@ public class GlassBox extends Material {
 
     public GlassBox(World world, float x, float y, float sX, float sY) {
         super(world, "bambooBox.png", x, y, sX, sY);
-        this.durability = 10;
+        this.durability = 15;
         this.shape = "Box";
     }
 

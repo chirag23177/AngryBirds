@@ -16,7 +16,7 @@ public class WoodPillar extends Material {
 
     public WoodPillar(World world, float x, float y, float sX, float sY) {
         super(world, "verticalBamboo.png", x, y, sX, sY);
-        this.durability = 20;
+        this.durability = 25;
         this.shape = "Pillar";
     }
 
