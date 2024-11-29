@@ -1,13 +1,3 @@
-//package com.project.orion.angrybirds.classes;
-//
-//public class Steel extends Material{
-//    public Steel() {
-//        this.durability = 30;
-//        this.shape = "Rectangular platform";
-//    }
-//    public void crush() {};
-//}
-
 package com.project.orion.angrybirds.classes;
 
 import com.badlogic.gdx.physics.box2d.*;
@@ -38,9 +28,5 @@ public class SteelPlatform extends Material {
 
         body.createFixture(fixtureDef);
         platformShape.dispose();
-    }
-
-    public void crush() {
-        // Logic to handle crushing of the steel platform
     }
 }

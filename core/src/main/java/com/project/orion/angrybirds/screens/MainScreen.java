@@ -20,22 +20,19 @@ public class MainScreen implements Screen {
     private TextButton closeButton;
 
     public MainScreen() {
-        // Initialize the stage
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Create a main button to show the pop-up
         showPopupButton = new TextButton("Show Pop-Up", new Skin(Gdx.files.internal("slot4.png")));
         showPopupButton.setPosition(100, 100);
         showPopupButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                popupGroup.setVisible(true); // Show the pop-up
+                popupGroup.setVisible(true);
             }
         });
         stage.addActor(showPopupButton);
 
-        // Create the pop-up Group
         popupGroup = new Group();
         popupGroup.setVisible(false); // Start hidden
 

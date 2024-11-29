@@ -24,7 +24,7 @@ public abstract class Pig {
     private void createBody(float x, float y) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
-        bodyDef.type = BodyDef.BodyType.DynamicBody; // Change to DynamicBody
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         body = world.createBody(bodyDef);
 
         CircleShape shape = new CircleShape();
@@ -36,7 +36,6 @@ public abstract class Pig {
 
         fixtureDef.friction = 1f;
         fixtureDef.restitution = 0.2f;
-
 
         body.createFixture(fixtureDef);
         shape.dispose();

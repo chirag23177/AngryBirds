@@ -1,13 +1,3 @@
-//package com.project.orion.angrybirds.classes;
-//
-//public class Glass extends Material{
-//    public Glass() {
-//        this.durability = 10;
-//        this.shape = "Box";
-//    }
-//    public void shatter() {};
-//}
-
 package com.project.orion.angrybirds.classes;
 
 import com.badlogic.gdx.physics.box2d.*;
@@ -38,9 +28,5 @@ public class GlassBox extends Material {
 
         body.createFixture(fixtureDef);
         boxShape.dispose();
-    }
-
-    public void shatter() {
-        // Logic to handle shattering of the glass box
     }
 }

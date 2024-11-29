@@ -21,7 +21,7 @@ public class Ground {
         groundBody = world.createBody(bodyDef);
 
         PolygonShape groundShape = new PolygonShape();
-        groundShape.setAsBox(1920, 10); // Assuming the width of the screen is 1920 units
+        groundShape.setAsBox(1920, 10);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = groundShape;
@@ -36,7 +36,7 @@ public class Ground {
         bodyDef.type = BodyDef.BodyType.StaticBody;
 
         PolygonShape wallShape = new PolygonShape();
-        wallShape.setAsBox(10, 1080); // Assuming the height of the screen is 1080 units
+        wallShape.setAsBox(10, 1080);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = wallShape;
@@ -48,7 +48,7 @@ public class Ground {
         leftWallBody.createFixture(fixtureDef);
 
         // Right wall
-        bodyDef.position.set(1920, 0); // Assuming the width of the screen is 1920 units
+        bodyDef.position.set(1920, 0);
         rightWallBody = world.createBody(bodyDef);
         rightWallBody.createFixture(fixtureDef);
 
@@ -56,11 +56,10 @@ public class Ground {
     }
 
     public void dispose() {
-        // No texture to dispose
     }
 
     public float getHeight() {
-        return 130; // Assuming the height of the ground is 10 units
+        return 130;
     }
 
     public Body getGroundBody() {

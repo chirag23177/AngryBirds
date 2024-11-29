@@ -51,7 +51,8 @@ public abstract class Material {
             (float) Math.toDegrees(body.getAngle()),
             0, 0,
             texture.getWidth(), texture.getHeight(),
-            false, false);
+            false, false
+        );
     }
 
     public void dispose() {

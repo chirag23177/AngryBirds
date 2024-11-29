@@ -119,7 +119,6 @@ public class LevelSelectionScreen implements Screen {
         });
 
         Image logoImage = new Image(new TextureRegionDrawable(logo_img));
-//        table.add(backButton).size(backButton.getWidth(), backButton.getHeight()).padBottom(20).row();
         table.add(backButton).size(backButton.getWidth()+10,backButton.getHeight()+10).top().left().pad(30).expandX().colspan(2).padTop(-350).row();
         table.add(logoImage).colspan(3).padBottom(70).padTop(-240).row();
         table.add(levelOneButton).size(levelOneButton.getWidth(), levelOneButton.getHeight()).padRight(-370);
@@ -136,7 +135,6 @@ public class LevelSelectionScreen implements Screen {
         game.viewport.apply();
         game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
         game.batch.begin();
-//        pig.createBody(100, 500);
         pig.render(game.batch);
         float worldWidth = game.viewport.getWorldWidth();
         float worldHeight = game.viewport.getWorldHeight();
