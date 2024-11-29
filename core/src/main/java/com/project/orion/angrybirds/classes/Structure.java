@@ -27,33 +27,6 @@ public abstract class Structure {
         }
     }
 
-    public void checkCollisions(Bird bird) {
-        for (Material material : materials) {
-            if (material.getBody().getFixtureList().first().testPoint(bird.getBody().getPosition())) {
-                material.reduceDurability(bird.getImpact());
-                bird.hitTarget();
-            }
-        }
-
-        for (Pig pig : pigs) {
-            if (pig.getBody().getFixtureList().first().testPoint(bird.getBody().getPosition())) {
-                pig.reduceHealth(bird.getImpact());
-                bird.hitTarget();
-            }
-        }
-
-        for (Material material : materials) {
-            for (Pig pig : pigs) {
-                if (material.getBody().getFixtureList().first().testPoint(pig.getBody().getPosition())) {
-                    pig.reduceHealth(material.getDurability());
-                    material.reduceDurability(material.getDurability());
-                }
-            }
-        }
-
-        pigs.removeIf(Pig::isDestroyed);
-    }
-
     public boolean areAllPigsDestroyed() {
         return pigs.isEmpty();
     }
@@ -85,11 +58,10 @@ public abstract class Structure {
     }
 
     public Body getPrimaryBody() {
-        // Return the main body of the structure if applicable
         if (!materials.isEmpty()) {
-            return materials.get(0).getBody(); // Example
+            return materials.get(0).getBody();
         }
-        return null; // Example
+        return null;
     }
 
 }

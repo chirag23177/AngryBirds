@@ -6,7 +6,6 @@ import com.badlogic.gdx.physics.box2d.World;
 public class Structure1 extends Structure {
     public Structure1(World world) {
         super(world);
-        // Initialize materials and pigs for this structure
         materials.add(new WoodPillar(world, 1600, 220, 60, 162));
         materials.add(new WoodPillar(world, 1300, 220, 60, 162));
         materials.add(new SteelPlatform(world, 1450, 315, 424, 48));
@@ -15,7 +14,6 @@ public class Structure1 extends Structure {
     }
 
     public boolean containsBody(Body body) {
-        // Check if the given body is part of this structure
         return materials.stream()
             .anyMatch(material -> material.getBody() == body);
     }

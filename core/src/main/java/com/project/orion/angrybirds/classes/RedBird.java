@@ -9,14 +9,4 @@ public class RedBird extends Bird {
         this.speed = 2;
         this.impact = 20;
     }
-    public void applyDamage(){
-        health -= 10;
-        if (health <= 0){
-            distroy();
-        }
-    }
-
-    private void distroy(){
-        world.destroyBody(body);
-    }
 }
