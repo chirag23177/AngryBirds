@@ -6,7 +6,7 @@ public class SteelPlatform extends Material {
 
     public SteelPlatform(World world, float x, float y, float sX, float sY) {
         super(world, "horizontalBamboo.png", x, y, sX, sY);
-        this.durability = 30;
+        this.durability = 35;
         this.shape = "Rectangular platform";
     }
 
