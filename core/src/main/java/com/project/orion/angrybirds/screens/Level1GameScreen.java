@@ -116,9 +116,7 @@ public class Level1GameScreen implements Screen {
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
-                touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
-                touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
+                Vector2 touchPos = (new Vector2(x, y));
 
                 if (isNearBird(touchPos)) {
                     isDragging = true;
@@ -132,9 +130,7 @@ public class Level1GameScreen implements Screen {
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
                 if (isDragging) {
-                    Vector2 touchPos = game.viewport.unproject(new Vector2(x, y));
-                    touchPos.x = touchPos.x * game.viewport.getWorldWidth() / Gdx.graphics.getWidth();
-                    touchPos.y = (Gdx.graphics.getHeight() - touchPos.y) * game.viewport.getWorldHeight() / Gdx.graphics.getHeight();
+                    Vector2 touchPos = (new Vector2(x, y));
                     currentTouchPosition.set(touchPos);
 
                     if (currentTouchPosition.dst(initialTouchPosition) > MAX_DRAG_DISTANCE) {
@@ -285,40 +281,70 @@ public class Level1GameScreen implements Screen {
         this.gameEnded = gameEnded;
     }
 
+    public Music getGameMusic() {
+        return gameMusic;
+    }
+
     private void renderTrajectory() {
-        projectileEquation.setStartVelocity(launchVelocity);
-        Vector2 birdPosition = currentBird.getBody().getPosition();
-        projectileEquation.setStartPoint(birdPosition);
-        projectileEquation.setGravity(-9.8f);
+        // Create texture for trajectory points
+        Texture trajectoryTexture = new Texture("circle.png");
 
-        shapeRenderer.setProjectionMatrix(game.viewport.getCamera().combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 0, 0.7f);
+        // Calculate launch velocity
+        Vector2 velocity = new Vector2(currentTouchPosition).sub(initialTouchPosition).scl(LAUNCH_POWER_MULTIPLIER);
+        velocity.x = -velocity.x;
+        velocity.y = -velocity.y;
 
-        float timeStep = 0.05f;
-        float t = 0f;
-        int numSteps = 150;
+        // Limit velocity if it exceeds max drag distance
+        if (velocity.len() > MAX_DRAG_DISTANCE) {
+            velocity.nor().scl(MAX_DRAG_DISTANCE);
+        }
 
-        Vector2 previousPoint = new Vector2(birdPosition);
+        // Physics simulation parameters
+        float gravity = 27f; // Using the existing gravity from projectile equation
+        float timeStep = 0.5f;
+        float maxTrajectoryTime = 10f; // Limit trajectory prediction time
 
-        for (int i = 0; i < numSteps; i++) {
-            float x = birdPosition.x + projectileEquation.getX(t);
-            float y = birdPosition.y + projectileEquation.getY(t);
+        // Initial conditions
+        Vector2 startPos = new Vector2(BIRD_POSITION); // Use the predefined launch position
+        Vector2 currentPos = new Vector2(startPos);
+        Vector2 currentVelocity = new Vector2(velocity);
 
-            if (i > 0) {
-                shapeRenderer.line(previousPoint.x, previousPoint.y, x, y);
-            }
+        // Trajectory rendering
+        game.batch.begin();
+        float initialScale = 2f;
+        float minScale = 0.5f;
 
-            previousPoint.set(x, y);
-            t += timeStep;
+        for (float time = 0; time < maxTrajectoryTime; time += timeStep) {
+            // Precise projectile motion equations
+            // x = x0 + vx * t
+            // y = y0 + vy * t - (1/2) * g * t^2
+            currentPos.x = startPos.x + currentVelocity.x * time;
+            currentPos.y = startPos.y + currentVelocity.y * time - (0.5f * gravity * time * time);
 
-            if (y < ground.getHeight()) {
+            // Calculate scale (decrease size with distance)
+            float distanceFromStart = currentPos.dst(startPos);
+            float scale = Math.max(initialScale - (distanceFromStart / (MAX_DRAG_DISTANCE * 4)), minScale);
+
+            // Render trajectory point
+            game.batch.draw(
+                trajectoryTexture,
+                currentPos.x - (trajectoryTexture.getWidth() * scale / 2),
+                currentPos.y - (trajectoryTexture.getHeight() * scale / 2),
+                trajectoryTexture.getWidth() * scale,
+                trajectoryTexture.getHeight() * scale
+            );
+
+            // Optional: Break if bird would go below ground
+            if (currentPos.y < ground.getHeight()) {
                 break;
             }
         }
+        game.batch.end();
 
-        shapeRenderer.end();
+        // Dispose of texture to prevent memory leaks
+        trajectoryTexture.dispose();
     }
+
 
     private void setupContactListner() {
         contactListener = new ContactListener() {
