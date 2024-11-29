@@ -6,6 +6,6 @@ public class YellowBird extends Bird{
     public YellowBird(World world,float x, float y) {
         super(world,"yellowBird.png", x, y, 70);
         this.speed = 3;
-        this.impact = 10;
+        this.impact = 5;
     }
 }

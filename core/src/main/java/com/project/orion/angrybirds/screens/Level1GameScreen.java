@@ -36,19 +36,16 @@ public class Level1GameScreen implements Screen {
 
     private final Stage stage;
 
-    // Slingshot mechanics
     private boolean isDragging = false;
     private Vector2 initialTouchPosition = new Vector2();
     private Vector2 currentTouchPosition = new Vector2();
     private Vector2 launchVelocity = new Vector2();
 
-    // Slingshot constraints
     private static final float MAX_DRAG_DISTANCE = 200f;
     private static final float LAUNCH_POWER_MULTIPLIER = 15f;
     private static final Vector2 BIRD_POSITION = new Vector2(200f, 300);
     private static final Vector2 GRAB_REGION_CENTRE = new Vector2(200f, 300f);
 
-    // Collision
     private ContactListener contactListener;
     private List<Body> destroyBody = new ArrayList<>();
 
@@ -56,7 +53,6 @@ public class Level1GameScreen implements Screen {
     private LosePopupScreen losePopupScreen;
     private PausePopupScreen pausePopupScreen;
     private boolean gameEnded;
-    private float timer;
     private Texture pauseTexture;
     private Button pauseButton;
 
@@ -102,7 +98,6 @@ public class Level1GameScreen implements Screen {
         catapult = new Texture("slingshot.png");
 //        debugRenderer = new Box2DDebugRenderer();
 
-        // Create ground and structure
         ground = new Ground(world, 130);
         structure = new Structure1(world);
 
@@ -110,7 +105,6 @@ public class Level1GameScreen implements Screen {
         losePopupScreen = new LosePopupScreen(game);
         pausePopupScreen = new PausePopupScreen(game, stage);
 
-        // Touch input handling
         stage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -158,8 +152,8 @@ public class Level1GameScreen implements Screen {
             }
         });
 
-        Texture pauseTexture = new Texture("pause.png");
-        Button pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
+        pauseTexture = new Texture("pause.png");
+        pauseButton = new Button(new TextureRegionDrawable(pauseTexture));
         pauseButton.setPosition(10, game.viewport.getWorldHeight() - pauseButton.getHeight() - 10);
 
         pauseButton.addListener(new ClickListener() {
@@ -181,8 +175,6 @@ public class Level1GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        timer += delta;
-
         if (!gameEnded) {
             if (structure.areAllPigsDestroyed()) {
                 gameEnded = true;
@@ -293,28 +285,34 @@ public class Level1GameScreen implements Screen {
 
     private void renderTrajectory() {
         Texture trajectoryTexture = new Texture("circle.png");
+
         Vector2 velocity = new Vector2(currentTouchPosition).sub(initialTouchPosition).scl(LAUNCH_POWER_MULTIPLIER);
         velocity.x = -velocity.x;
         velocity.y = -velocity.y;
+
         if (velocity.len() > MAX_DRAG_DISTANCE) {
             velocity.nor().scl(MAX_DRAG_DISTANCE);
         }
+
         float gravity = 27f;
-        float timeStep = 0.5f;
+        float timeStep = 0.3f;
         float maxTrajectoryTime = 10f;
+
         Vector2 startPos = new Vector2(BIRD_POSITION);
         Vector2 currentPos = new Vector2(startPos);
         Vector2 currentVelocity = new Vector2(velocity);
 
         game.batch.begin();
-        float initialScale = 2f;
-        float minScale = 0.5f;
+        float initialScale = 0.9f;
+        float minScale = 0.3f;
 
-        for (float time = 0; time < maxTrajectoryTime; time += timeStep) {
+        for (float time = timeStep; time < maxTrajectoryTime; time += timeStep) {
             currentPos.x = startPos.x + currentVelocity.x * time;
             currentPos.y = startPos.y + currentVelocity.y * time - (0.5f * gravity * time * time);
+
             float distanceFromStart = currentPos.dst(startPos);
             float scale = Math.max(initialScale - (distanceFromStart / (MAX_DRAG_DISTANCE * 4)), minScale);
+
             game.batch.draw(
                 trajectoryTexture,
                 currentPos.x - (trajectoryTexture.getWidth() * scale / 2),
@@ -322,11 +320,13 @@ public class Level1GameScreen implements Screen {
                 trajectoryTexture.getWidth() * scale,
                 trajectoryTexture.getHeight() * scale
             );
+          
             if (currentPos.y < ground.getHeight()) {
                 break;
             }
         }
         game.batch.end();
+
         trajectoryTexture.dispose();
     }
 
